@@ -1,0 +1,22 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .close-btn {
+    margin-left: auto;
+  }
+}
+
+.add-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}

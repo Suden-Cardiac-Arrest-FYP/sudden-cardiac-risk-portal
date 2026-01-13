@@ -1,0 +1,91 @@
+<form [formGroup]="payrollForm" class="card grid grid-cols-1 gap-4 mt-4">
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <p-datepicker
+        formControlName="Year"
+        view="year"
+        dateFormat="yy"
+        showIcon
+        iconDisplay="input"
+        styleClass="w-full"
+        appendTo="body"
+        [showClear]="false"
+        [class.ng-invalid]="payrollForm.get('Year')?.invalid && (payrollForm.get('Year')?.dirty || payrollForm.get('Year')?.touched)"
+      />
+      <label for="Year">Select Year</label>
+    </p-floatlabel>
+    <small 
+      class="text-red-500" 
+      *ngIf="payrollForm.get('Year')?.invalid && (payrollForm.get('Year')?.dirty || payrollForm.get('Year')?.touched)"
+    >
+      Year is required.
+    </small>
+  </div>
+  
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <p-datepicker
+        formControlName="Month"
+        view="month"
+        dateFormat="MM"
+        showIcon
+        iconDisplay="input"
+        styleClass="w-full"
+        appendTo="body"
+        [showClear]="false"
+        [class.ng-invalid]="payrollForm.get('Month')?.invalid && (payrollForm.get('Month')?.dirty || payrollForm.get('Month')?.touched)"
+      />
+      <label for="Month">Select Month</label>
+    </p-floatlabel>
+    <small 
+      class="text-red-500" 
+      *ngIf="payrollForm.get('Month')?.invalid && (payrollForm.get('Month')?.dirty || payrollForm.get('Month')?.touched)"
+    >
+      Month is required.
+    </small>
+  </div>
+  
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <p-datepicker
+        formControlName="Date"
+        showIcon
+        iconDisplay="input"
+        styleClass="w-full"
+        appendTo="body"
+        [showClear]="false"
+        [class.ng-invalid]="payrollForm.get('Date')?.invalid && (payrollForm.get('Date')?.dirty || payrollForm.get('Date')?.touched)"
+      />
+      <label for="Date">Created Date</label>
+    </p-floatlabel>
+    <small 
+      class="text-red-500" 
+      *ngIf="payrollForm.get('Date')?.invalid && (payrollForm.get('Date')?.dirty || payrollForm.get('Date')?.touched)"
+    >
+      Created Date is required.
+    </small>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      [disabled]="payrollForm.invalid && submitted"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>

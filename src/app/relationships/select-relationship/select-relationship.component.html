@@ -1,0 +1,93 @@
+<div
+  class="p-8 bg-gradient-to-br from-surface-50 to-surface-200 dark:from-surface-900 dark:to-surface-800"
+>
+  <div class="max-w-7xl mx-auto">
+    <!-- Cards Grid -->
+    <div
+      class="gap-8"
+      [ngClass]="{
+        'grid grid-cols-1': itemsData.length === 1,
+        'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3':
+          itemsData.length !== 1,
+      }"
+    >
+      <!-- Looping over itemsData -->
+      <div
+        *ngFor="let item of itemsData; let i = index"
+        class="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2"
+        [style.animation-delay.ms]="i * 100"
+      >
+        <div
+          class="relative bg-white dark:bg-surface-800 rounded-2xl p-8 text-center shadow-xl hover:shadow-2xl border border-surface-200 dark:border-surface-700 hover:border-primary-300 dark:hover:border-primary-400 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-r before:from-primary-500/10 before:to-secondary-500/10 before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 overflow-hidden"
+        >
+          <!-- Decorative background pattern -->
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary-100/30 to-transparent dark:from-primary-900/30 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700"
+          ></div>
+
+          <!-- Icon Container -->
+          <div class="relative mb-6">
+            <div
+              class="w-20 h-20 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300 ring-4 ring-primary-100 dark:ring-primary-900/50 group-hover:ring-primary-200 dark:group-hover:ring-primary-800"
+            >
+              <i class="pi {{ item.icon }}" style="font-size: 2rem"></i>
+            </div>
+
+            <!-- Floating particles effect -->
+            <div
+              class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            >
+              <div
+                class="absolute top-2 left-8 w-2 h-2 bg-primary-400 rounded-full animate-bounce"
+                style="animation-delay: 0.1s"
+              ></div>
+              <div
+                class="absolute top-8 right-4 w-1.5 h-1.5 bg-secondary-400 rounded-full animate-bounce"
+                style="animation-delay: 0.3s"
+              ></div>
+              <div
+                class="absolute bottom-4 left-12 w-1 h-1 bg-primary-300 rounded-full animate-bounce"
+                style="animation-delay: 0.5s"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="relative space-y-4">
+            <h3
+              class="text-xl font-semibold text-inherit dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300"
+            >
+              {{ item.label }}
+            </h3>
+
+            <!-- Action Button -->
+            <button
+              pButton
+              class="relative space-y-2 w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-0 overflow-hidden group/btn"
+              pTooltip="Click to explore"
+              tooltipPosition="top"
+              (click)="visit(item.name)"
+            >
+              <!-- Button background effect -->
+              <span
+                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 ease-out"
+              ></span>
+
+              <span class="relative flex items-center justify-center gap-2">
+                {{ item.label }}
+                <i
+                  class="pi pi-arrow-right text-sm transform group-hover/btn:translate-x-1 transition-transform duration-300"
+                ></i>
+              </span>
+            </button>
+          </div>
+
+          <!-- Hover glow effect -->
+          <div
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500/20 to-secondary-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none blur-xl -z-10"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

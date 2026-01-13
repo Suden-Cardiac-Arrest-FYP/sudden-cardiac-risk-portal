@@ -1,0 +1,240 @@
+<div
+  [ngClass]="{
+    'w-auto p-6': isSlimMenu,
+    'w-72': !isSlimMenu
+  }"
+  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between h-full"
+>
+  <div
+    [ngClass]="{
+      'w-12 flex flex-col items-center': isSlimMenu,
+      'w-auto': !isSlimMenu
+    }"
+  >
+    <div class="flex items-center justify-center">
+      <div
+        class="border border-primary rounded-xl flex items-center justify-center"
+      >
+        <div class="flex items-center justify-center">
+          <img
+            class="logo"
+            src="https://sca-mihishi-s3-bucket.s3.eu-west-2.amazonaws.com/sca-logo.jpg"
+            alt="Loading Logo"
+            style="width: 200px; height: 150px"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrollable content wrapper div -->
+  <div class="overflow-y-auto overflow-x-hidden scrollbar-hide flex-grow">
+    <div
+      [ngClass]="{
+        'w-12 flex flex-col items-center': isSlimMenu,
+        'w-auto': !isSlimMenu
+      }"
+    >
+      <!-- Categories - Only showing Dashboard -->
+      <div class="mt-10">
+        <!-- Dashboard Category (assuming it exists in your categorizedNavItems) -->
+        <div class="mb-6">
+          <!-- Category Header -->
+          <div
+            *ngIf="!isSlimMenu"
+            class="px-4 py-2 text-sm font-bold text-surface-700 dark:text-surface-300 uppercase tracking-wider"
+          >
+            Dashboard
+          </div>
+
+          <!-- Dashboard Item -->
+          <div class="flex flex-col gap-2">
+            <!-- Replace this with your actual dashboard nav item -->
+            <div
+              routerLink="/dashboard"
+              [pTooltip]="isSlimMenu ? 'Dashboard' : undefined"
+              (click)="LayoutClick($event)"
+              class="p-ripple px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+              [ngClass]="{
+                'w-12 justify-center py-4': isSlimMenu,
+                'w-full': !isSlimMenu,
+                'text-muted-color hover:bg-emphasis bg-transparent':
+                  selectedSampleAppsSidebarNav !== 'Dashboard',
+                'text-primary-contrast bg-primary hover:bg-primary-emphasis':
+                  selectedSampleAppsSidebarNav === 'Dashboard'
+              }"
+            >
+              <i class="pi pi-chart-line"></i>
+              <span
+                [ngClass]="{
+                  hidden: isSlimMenu,
+                  'font-medium leading-8': !isSlimMenu
+                }"
+                >・</span
+              >
+              <span
+                [ngClass]="{
+                  hidden: isSlimMenu,
+                  'font-medium leading-none': !isSlimMenu
+                }"
+                >Dashboard</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- TEMPORARILY COMMENTED OUT - Other Categories -->
+        <!--
+        <div
+          *ngFor="let category of categorizedNavItems"
+          class="mb-6"
+          [ngClass]="{ hidden: category.name === 'Unknown' }"
+        >
+          <div
+            *ngIf="!isSlimMenu"
+            class="px-4 py-2 text-sm font-bold text-surface-700 dark:text-surface-300 uppercase tracking-wider"
+          >
+            {{ category.name }}
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div
+              *ngFor="let navItem of category.items"
+              [routerLink]="navItem.routerLink"
+              [pTooltip]="isSlimMenu ? navItem.title : undefined"
+              (click)="LayoutClick($event)"
+              class="p-ripple px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+              [ngClass]="{
+                'w-12 justify-center py-4': isSlimMenu,
+                'w-full': !isSlimMenu,
+                'text-muted-color hover:bg-emphasis bg-transparent':
+                  selectedSampleAppsSidebarNav !== navItem.title,
+                'text-primary-contrast bg-primary hover:bg-primary-emphasis':
+                  selectedSampleAppsSidebarNav === navItem.title
+              }"
+            >
+              <i [class]="navItem.icon"></i>
+              <span
+                [ngClass]="{
+                  hidden: isSlimMenu,
+                  'font-medium leading-8': !isSlimMenu
+                }"
+                >・</span
+              >
+              <span
+                [ngClass]="{
+                  hidden: isSlimMenu,
+                  'font-medium leading-none': !isSlimMenu
+                }"
+                >{{ navItem.title }}</span
+              >
+            </div>
+          </div>
+        </div>
+        -->
+      </div>
+    </div>
+
+    <!-- TEMPORARILY COMMENTED OUT - More Items Section -->
+    <!--
+    <div
+      [ngClass]="{
+        'w-12 flex flex-col items-center': isSlimMenu,
+        'w-auto': !isSlimMenu
+      }"
+    >
+      <div class="mt-10 flex flex-col gap-2">
+        <div
+          *ngFor="let navItem of sampleAppsSidebarNavsMore"
+          [pTooltip]="isSlimMenu ? navItem.title : null"
+          (click)="visibleRight = true; LayoutClick($event)"
+          class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+          [ngClass]="{
+            'w-12 justify-center py-4': isSlimMenu,
+            'w-full': !isSlimMenu,
+            'text-muted-color hover:bg-emphasis bg-transparent':
+              selectedSampleAppsSidebarNav !== navItem.title,
+            'text-primary-contrast bg-primary hover:bg-primary-emphasis':
+              selectedSampleAppsSidebarNav === navItem.title
+          }"
+        >
+          <i [class]="navItem.icon"></i>
+          <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-8'"
+            >・</span
+          >
+          <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-none'">{{
+            navItem.title
+          }}</span>
+        </div>
+      </div>
+    </div>
+    -->
+  </div>
+
+  <!-- User profile section - fixed at the bottom -->
+  <div class="mt-auto">
+    <p-divider />
+    <div
+      class="flex items-center"
+      [class.flex-col]="isSlimMenu"
+      [class.gap-3]="!isSlimMenu"
+    >
+      <p-avatar
+        *ngIf="isSlimMenu"
+        [image]="ProfileData?.picture"
+        size="large"
+        shape="circle"
+        class="shrink-0 cursor-pointer"
+        (click)="toggle($event)"
+      />
+
+      <div class="flex flex-wrap w-full" [class.hidden]="isSlimMenu">
+        <div
+          class="flex items-center gap-2 py-3 hover:bg-emphasis cursor-pointer rounded-border w-full overflow-hidden"
+          (click)="toggle($event)"
+        >
+          <img
+            [src]="ProfileData?.picture"
+            style="width: 32px"
+            class="rounded-full"
+          />
+          <div class="flex flex-col w-full min-w-0 overflow-hidden">
+            <span
+              class="font-medium block break-words w-full overflow-hidden text-ellipsis leading-tight"
+            >
+              {{ ProfileData?.name }}
+            </span>
+            <div
+              class="text-sm text-surface-500 dark:text-surface-400 block break-words w-full overflow-hidden text-ellipsis leading-tight"
+            >
+              {{ ProfileData?.email }}
+            </div>
+          </div>
+        </div>
+
+        <p-popover #op>
+          <div class="flex flex-col gap-4">
+            <button
+              pButton
+              (click)="logout()"
+              severity="secondary"
+              class="flex items-center gap-2 px-3 py-2 w-full text-left"
+            >
+              <i class="pi pi-sign-out"></i>
+              <span class="font-medium">Sign Out</span>
+            </button>
+          </div>
+        </p-popover>
+
+        <div class="flex justify-center" [class.hidden]="!isSlimMenu">
+          <button
+            pButton
+            (click)="logout()"
+            icon="pi pi-sign-out"
+            severity="secondary"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

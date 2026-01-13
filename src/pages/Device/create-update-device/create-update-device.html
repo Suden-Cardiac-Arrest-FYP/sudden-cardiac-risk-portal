@@ -1,0 +1,78 @@
+<form [formGroup]="deviceForm" class="card grid grid-cols-1 gap-4 mt-4">
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Ip"
+        formControlName="Ip"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Ip">IP Address</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Port"
+        formControlName="Port"
+        autocomplete="off"
+        type="number"
+        class="w-full"
+      />
+      <label for="Port">Port</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Location"
+        formControlName="Location"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Location">Location</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <p-select
+        id="Status"
+        formControlName="Status"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select Status"
+        class="w-full"
+      />
+      <label for="Status">Status</label>
+    </p-floatlabel>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>

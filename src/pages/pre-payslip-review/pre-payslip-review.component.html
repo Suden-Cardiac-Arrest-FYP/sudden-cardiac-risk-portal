@@ -1,0 +1,253 @@
+<div class="pre-payslip-review-container p-6 bg-gray-50 dark:bg-inherit min-h-screen">
+  <p-toast></p-toast>
+  <p-card class="mb-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+          Payslip Pre-Review
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Review and resolve irregular attendance before payslip generation
+        </p>
+        <div class="flex gap-4 mt-3 text-sm">
+          <span class="text-gray-600 dark:text-gray-400">
+            <i class="pi pi-user mr-1"></i>
+            Employee ID: <strong>{{ employeeId }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="text-right">
+        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          Resolution Progress
+        </div>
+        <div class="flex items-center gap-3">
+          <p-progressBar [value]="getProgressPercentage()" [style]="{'width': '120px', 'height': '8px'}"
+            [showValue]="false">
+          </p-progressBar>
+          <span class="text-sm font-medium">
+            {{ getProgressPercentage() }}%
+          </span>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-6" *ngIf="!isDataLoading && stats.total > 0">
+    <div class="bg-white dark:bg-surface-900 p-4 rounded-lg shadow border-l-4 border-blue-500">
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Total Issues</p>
+          <p class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ stats.total }}</p>
+        </div>
+        <i class="pi pi-list text-blue-500 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-surface-900 p-4 rounded-lg shadow border-l-4 border-yellow-500">
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Missing In</p>
+          <p class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ stats.missingInCount }}</p>
+        </div>
+        <i class="pi pi-sign-in text-yellow-500 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-surface-900 p-4 rounded-lg shadow border-l-4 border-purple-500">
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Missing Out</p>
+          <p class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ stats.missingOutCount }}</p>
+        </div>
+        <i class="pi pi-sign-out text-purple-500 text-2xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-surface-900 p-4 rounded-lg shadow border-l-4 border-amber-500">
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Leave Conflicts</p>
+          <p class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ stats.leaveConflictCount }}</p>
+        </div>
+        <i class="pi pi-exclamation-triangle text-amber-500 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end items-center mb-6 bg-white dark:bg-surface-900 p-4 rounded-lg shadow my-2">
+    <div class="flex gap-3 items-center">
+      <div>
+        <p-button label="Proceed to Payslip Generation" icon="pi pi-arrow-right" size="small"
+          [disabled]="!isAllResolved() || !isDataloaded" (click)="proceedToPayslipGeneration()"
+          pTooltip="All issues must be resolved to proceed">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isDataLoading" class="flex flex-col items-center justify-center py-20">
+    <p-progressBar mode="indeterminate" [style]="{'width': '300px', 'height': '6px'}"></p-progressBar>
+    <p class="text-gray-600 dark:text-gray-400 mt-4">Loading attendance data...</p>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="!isDataLoading && IrregularAttendanceData.length === 0"
+    class="flex flex-col items-center justify-center py-20 bg-white dark:bg-surface-900 rounded-lg shadow">
+    <div class="text-6xl text-primary-300 dark:text-primary-600 mb-4">
+      <i class="pi pi-check-circle" style="font-size: 4rem"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+      All Clear!
+    </h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+      No irregular attendance found. You can proceed to payslip generation.
+    </p>
+    <p-button label="Proceed to Payslip Generation" icon="pi pi-arrow-right" [disabled]="!isAllResolved() || !isDataloaded"
+      (click)="proceedToPayslipGeneration()">
+    </p-button>
+  </div>
+
+  <!-- Data Table -->
+  <div class="bg-white dark:bg-surface-900 rounded-lg shadow" *ngIf="!isDataLoading && IrregularAttendanceData.length > 0">
+    <div class="p-4 border-b border-gray-200 dark:border-surface-8c00">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+        Irregular Attendance Records
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Review and resolve the following attendance issues
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <p-table #table #dt [value]="IrregularAttendanceData" [(selection)]="selectedRows" dataKey="AttendanceId"
+        [rows]="rows" [paginator]="false" [first]="first" [globalFilterFields]="['AttendanceId', 'Date', 'EmployeeId']"
+        class="min-w-full" [loading]="isDataLoading" styleClass="p-datatable-sm p-datatable-striped">
+
+        <!-- Table Header -->
+        <ng-template #header>
+          <tr class="bg-gray-50 dark:bg-surface-900">
+            <th style="width: 3rem" class="p-3">
+              <p-tableHeaderCheckbox />
+            </th>
+            <th class="p-3 text-left">Date</th>
+            <th class="p-3 text-left">Check In</th>
+            <th class="p-3 text-left">Check Out</th>
+            <th class="p-3 text-left">Shift Hours</th>
+            <th class="p-3 text-left">Status</th>
+            <th class="p-3 text-left">Actions</th>
+          </tr>
+        </ng-template>
+
+        <!-- Table Body -->
+        <ng-template #body let-attendance let-rowIndex="rowIndex">
+          <tr
+            class="border-b border-gray-200 dark:border-surface-700 hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors">
+
+            <!-- Checkbox -->
+            <td class="p-3">
+              <p-tableCheckbox [value]="attendance" />
+            </td>
+
+            <!-- Date -->
+            <td class="px-4 py-3">
+              <div class="text-sm text-gray-900 dark:text-gray-100">
+                {{ attendance.Date | date : "MMM dd, yyyy" }}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                {{ attendance.Date | date: 'EEEE' }}
+              </div>
+            </td>
+
+            <td class="p-3">
+              <ng-container *ngIf="attendance.time?.length > 0; else noCheckIn">
+                <div *ngFor="let t of attendance.time" class="flex items-center">
+                  <i class="pi pi-sign-in text-green-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {{ t.inTime || '—' }}
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noCheckIn>
+                <div class="flex items-center">
+                  <i class="pi pi-sign-in text-green-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Not checked in
+                  </div>
+                </div>
+              </ng-template>
+            </td>
+
+            <!-- Check Out -->
+            <td class="p-3">
+              <ng-container *ngIf="attendance.time?.length > 0; else noCheckOut">
+                <div *ngFor="let t of attendance.time" class="flex items-center">
+                  <i class="pi pi-sign-out text-red-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {{ t.endTime || '—' }}
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noCheckOut>
+                <div class="flex items-center">
+                  <i class="pi pi-sign-out text-red-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Not checked out
+                  </div>
+                </div>
+              </ng-template>
+            </td>
+
+            <!-- Shift Hours -->
+            <td class="p-3">
+              <div class="text-sm text-gray-900 dark:text-gray-100">
+                <div class="flex items-center space-x-2 mb-1">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Start:</span>
+                  <span class="font-medium">{{ attendance.ShiftStartTime }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400 mr-1.5">End:</span>
+                  <span class="font-medium">{{ attendance.ShiftEndTime }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Status -->
+            <td class="p-3">
+              <p-tag [value]="getAttendanceStatusText(attendance)" [severity]="getAttendanceStatusSeverity(attendance)"
+                [rounded]="true">
+                <i class="pi mr-1" [ngClass]="{
+                     'pi-times-circle': getAttendanceStatusSeverity(attendance) === 'danger',
+                     'pi-exclamation-triangle': getAttendanceStatusSeverity(attendance) === 'warning',
+                     'pi-info-circle': getAttendanceStatusSeverity(attendance) === 'info',
+                     'pi-check-circle': getAttendanceStatusSeverity(attendance) === 'success'
+                   }"></i>
+              </p-tag>
+            </td>
+
+            <!-- Actions -->
+            <td class="p-3">
+              <div class="flex flex-col gap-2">
+
+                <!-- Action Buttons -->
+                <div class="flex gap-1 flex-wrap">
+
+                  <ng-container *ngIf="attendance.hasLeave">
+                    <p-button icon="pi pi-pen-to-square" size="small" [rounded]="true" variant="outlined"
+                      pTooltip="Remove Leave or Attendance" tooltipPosition="top" (click)="removeLeaveOrAttendance(attendance)">
+                    </p-button>
+                  </ng-container>
+
+                  <p-button *ngIf="hasAccess('DTO5532', 'UPDATE')" icon="pi pi-pencil" size="small" severity="secondary"
+                    (click)="showResolveAttendanceDialogDefault(attendance)" [rounded]="true" variant="outlined"
+                    pTooltip="Edit Times" tooltipPosition="top">
+                  </p-button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>

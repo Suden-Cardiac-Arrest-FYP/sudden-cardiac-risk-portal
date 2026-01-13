@@ -1,0 +1,202 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template
+    #headless
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div class="flex flex-col items-center p-8 bg-white dark:bg-surface-900 rounded-2xl shadow-xl">
+      <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mb-2">
+        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+      </div>
+      <span class="font-bold text-2xl block mb-2 text-gray-900 dark:text-white">{{
+        message.header
+      }}</span>
+      <p class="mb-6 text-gray-600 dark:text-gray-300 text-center">{{ message.message }}</p>
+      <div class="flex items-center gap-3 w-full max-w-xs">
+        <p-button
+          label="Cancel"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="flex-1 py-3 px-6 border-gray-300 text-gray-700 hover:bg-gray-50"
+        />
+        <p-button
+          label="Delete"
+          (onClick)="onAccept()"
+          styleClass="flex-1 py-3 px-6 bg-red-600 hover:bg-red-700 text-white border-red-600"
+          severity="danger"
+        />
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+<div class="min-h-screen bg-gradient-to-br from-white-50 via-white to-purple-50 dark:from-surface-900 dark:via-surface-900 dark:to-surface-900">
+  <div class="container mx-auto px-4 ">
+    <!-- Header Section -->
+    <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-8">
+      <div class="mb-2 xl:mb-0">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <i class="fas fa-chart-bar text-blue-600 mr-3"></i>
+          Reports Dashboard
+        </h1>
+        <p class="text-gray-600 dark:text-gray-300">Generate and download comprehensive reports</p>
+      </div>
+
+    </div>
+
+    <!-- Employee Reports Section -->
+    <div class="mb-12">
+      <div class="flex items-center mb-6">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 w-1 h-8 rounded-full mr-4"></div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Employee Reports</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <!-- Employee Details Report -->
+        <div class="group bg-white dark:bg-surface-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2"></div>
+          <div class="p-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="bg-blue-100 dark:bg-blue-900 rounded-xl p-4">
+                <i class="fas fa-users text-blue-600 dark:text-blue-400 text-2xl"></i>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-semibold px-3 py-1 rounded-full">
+                Available
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+              Employee Details Report
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+              Comprehensive report containing all employee information including personal details, contact information, and employment status.
+            </p>
+            
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fas fa-calendar-alt mr-2 w-4"></i>
+                <span>All time data</span>
+              </div>
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fas fa-file-excel mr-2 w-4"></i>
+                <span>Excel format</span>
+              </div>
+            </div>
+            
+            <p-button
+              icon="pi pi-download"
+              label="Download Excel"
+              styleClass="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 rounded-lg font-semibold transition-colors duration-200"
+              (click)="downloadReport(reportCards[0])"
+            />
+          </div>
+        </div>
+
+        <!-- EPF Details Report -->
+        <div class="group bg-white dark:bg-surface-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div class="bg-gradient-to-r from-green-500 to-green-600 h-2"></div>
+          <div class="p-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="bg-green-100 dark:bg-green-900 rounded-xl p-4">
+                <i class="fas fa-piggy-bank text-green-600 dark:text-green-400 text-2xl"></i>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-semibold px-3 py-1 rounded-full">
+                Available
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+              EPF Details Report
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+              Detailed Employee Provident Fund information for all employees including contributions, balances, and fund details.
+            </p>
+            
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fas fa-calendar-alt mr-2 w-4"></i>
+                <span>Current data</span>
+              </div>
+              <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <i class="fas fa-file-excel mr-2 w-4"></i>
+                <span>Excel format</span>
+              </div>
+            </div>
+            
+            <p-button
+              icon="pi pi-download"
+              label="Download Excel"
+              styleClass="w-full py-3 bg-green-600 hover:bg-green-700 text-white border-green-600 rounded-lg font-semibold transition-colors duration-200"
+              (click)="downloadReport(reportCards[1])"
+            />
+          </div>
+        </div>
+
+        <!-- Leave Details Report -->
+        <div class="group bg-white dark:bg-surface-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2"></div>
+          <div class="p-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="bg-purple-100 dark:bg-purple-900 rounded-xl p-4">
+                <i class="fas fa-calendar-times text-purple-600 dark:text-purple-400 text-2xl"></i>
+              </div>
+              <div class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-semibold px-3 py-1 rounded-full">
+                Available
+              </div>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+              Leave Details - Time Frame
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+              Generate leave reports for specific date ranges including leave types, durations, and approval status.
+            </p>
+            
+            <div class="space-y-4 mb-6">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <i class="fas fa-calendar-plus mr-1"></i>
+                  From Date:
+                </label>
+                <p-calendar
+                  [(ngModel)]="startDates[getCardKey(reportCards[3])]"
+                  [showIcon]="true"
+                  styleClass="w-full"
+                  appendTo="body"
+                  [disabled]="!reportCards[3].enabled"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Select start date"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  <i class="fas fa-calendar-minus mr-1"></i>
+                  To Date:
+                </label>
+                <p-calendar
+                  [(ngModel)]="endDates[getCardKey(reportCards[3])]"
+                  [showIcon]="true"
+                  styleClass="w-full"
+                  appendTo="body"
+                  [disabled]="!reportCards[3].enabled"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Select end date"
+                />
+              </div>
+            </div>
+            
+            <p-button
+              icon="pi pi-download"
+              label="Download Excel"
+              styleClass="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white border-purple-600 rounded-lg font-semibold transition-colors duration-200"
+              (click)="downloadReport(reportCards[3])"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SCA Risk Prevention Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #1a202c;
+        line-height: 1.6;
+      }
+
+      .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 0;
+        background: white;
+        padding: 40px;
+        border-radius: 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          #4f46e5 0%,
+          #7c3aed 50%,
+          #ec4899 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 16px;
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        color: #64748b;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .about-sca-section {
+        background: white;
+        padding: 40px;
+        border-radius: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        margin-bottom: 0;
+      }
+
+      .about-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+
+      .about-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 24px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+      }
+
+      .about-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .about-item:nth-child(1) {
+        border-left-color: #dc2626;
+      }
+
+      .about-item:nth-child(2) {
+        border-left-color: #d97706;
+      }
+
+      .about-item:nth-child(3) {
+        border-left-color: #2563eb;
+      }
+
+      .about-item:nth-child(4) {
+        border-left-color: #059669;
+      }
+
+      .about-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        flex-shrink: 0;
+        font-weight: bold;
+      }
+
+      .about-icon.what {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+      }
+
+      .about-icon.why {
+        background: linear-gradient(135deg, #d97706, #b45309);
+      }
+
+      .about-icon.statistics {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      }
+
+      .about-icon.mission {
+        background: linear-gradient(135deg, #059669, #047857);
+      }
+
+      .about-text h3 {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+        color: #1a202c;
+      }
+
+      .about-text p {
+        color: #4b5563;
+        line-height: 1.7;
+        font-size: 0.95rem;
+      }
+
+      .about-text strong {
+        color: #1a202c;
+        font-weight: 600;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 0;
+        margin-bottom: 0;
+      }
+
+      .awareness-section {
+        background: white;
+        padding: 40px;
+        border-radius: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .risk-levels {
+        background: white;
+        padding: 40px;
+        border-radius: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #1a202c;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 2px;
+      }
+
+      .awareness-content {
+        margin-bottom: 32px;
+      }
+
+      .awareness-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid;
+      }
+
+      .awareness-item.symptom {
+        border-left-color: #dc2626;
+      }
+
+      .awareness-item.risk {
+        border-left-color: #d97706;
+      }
+
+      .awareness-item.prevention {
+        border-left-color: #059669;
+      }
+
+      .awareness-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .symptom .awareness-icon {
+        background: #dc2626;
+      }
+
+      .risk .awareness-icon {
+        background: #d97706;
+      }
+
+      .prevention .awareness-icon {
+        background: #059669;
+      }
+
+      .awareness-text h4 {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1a202c;
+      }
+
+      .awareness-text p {
+        color: #64748b;
+        font-size: 0.95rem;
+      }
+
+      .risk-level-item {
+        background: #f8fafc;
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+      }
+
+      .risk-level-item:hover {
+        background: #f1f5f9;
+      }
+
+      .risk-low {
+        border-left-color: #059669;
+      }
+
+      .risk-moderate {
+        border-left-color: #d97706;
+      }
+
+      .risk-high {
+        border-left-color: #dc2626;
+      }
+
+      .risk-critical {
+        border-left-color: #991b1b;
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      }
+
+      .risk-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .risk-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .low-badge {
+        background: #059669;
+      }
+
+      .moderate-badge {
+        background: #d97706;
+      }
+
+      .high-badge {
+        background: #dc2626;
+      }
+
+      .critical-badge {
+        background: #991b1b;
+      }
+
+      .risk-actions {
+        margin-top: 12px;
+      }
+
+      .risk-actions ul {
+        list-style: none;
+        margin-left: 0;
+      }
+
+      .risk-actions li {
+        position: relative;
+        padding-left: 20px;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+        color: #475569;
+      }
+
+      .risk-actions li::before {
+        content: "▶";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .bottom-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+
+      .emergency-card {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 0;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(220, 38, 38, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .emergency-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(255, 255, 255, 0.05) 10px,
+          rgba(255, 255, 255, 0.05) 20px
+        );
+        animation: shine 3s ease-in-out infinite;
+      }
+
+      @keyframes shine {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .emergency-number {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 16px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .prevention-tips {
+        background: white;
+        padding: 40px;
+        border-radius: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .tips-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tip-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 12px;
+        border-left: 4px solid #0ea5e9;
+        transition: all 0.3s ease;
+      }
+
+      .tip-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
+      }
+
+      .tip-icon {
+        width: 40px;
+        height: 40px;
+        background: #0ea5e9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .floating-action {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 50px;
+        text-decoration: none;
+        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.4);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .floating-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.6);
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .bottom-section {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .about-content {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .dashboard-container {
+          padding: 0;
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Header Section -->
+      <div class="header">
+        <h1>SCA Risk Prevention Dashboard</h1>
+        <p>
+          Empowering young adults with knowledge and tools to prevent sudden
+          cardiac arrest through early detection and lifestyle modifications
+        </p>
+      </div>
+
+      <!-- About SCA Section -->
+      <div class="about-sca-section">
+        <h2 class="section-title">🫀 About Sudden Cardiac Arrest</h2>
+
+        <div class="about-content">
+          <div class="about-item">
+            <div class="about-icon what">❓</div>
+            <div class="about-text">
+              <h3>What is Sudden Cardiac Arrest?</h3>
+              <p>
+                Sudden Cardiac Arrest (SCA) is a life-threatening emergency that
+                occurs when the heart suddenly stops beating effectively. Unlike
+                a heart attack, which is caused by blocked blood flow, SCA is an
+                electrical problem where the heart's rhythm becomes chaotic,
+                causing it to quiver instead of pumping blood. Without immediate
+                treatment, SCA leads to death within minutes.
+              </p>
+              <br />
+              <p>
+                <strong>Critical Statistics:</strong> Every year,
+                <strong>350,000+ Americans</strong> experience SCA outside of
+                hospitals. The survival rate is only
+                <strong>9% without immediate CPR</strong>, but increases to
+                <strong>70% with proper intervention</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div class="about-item">
+            <div class="about-icon mission">🎯</div>
+            <div class="about-text">
+              <h3>Our Mission: Prevention Through Awareness</h3>
+              <p>
+                <strong>Why Young Adults Are at Risk:</strong> Approximately
+                <strong>25% of SCA cases occur in people under 35</strong>.
+                Young adults face unique risks including undiagnosed genetic
+                conditions, intense athletic activities, substance use, and
+                lifestyle factors. Many underlying heart conditions remain
+                silent until a sudden cardiac event occurs.
+              </p>
+              <br />
+              <p>
+                <strong>Our Goal:</strong> Up to
+                <strong>70% of SCA cases are preventable</strong> through proper
+                screening, lifestyle modifications, and early intervention. This
+                platform empowers young adults to take control of their cardiac
+                health and save lives through prevention.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="awareness-section">
+          <h2 class="section-title">🫀 SCA Awareness</h2>
+
+          <div class="awareness-content">
+            <div class="awareness-item symptom">
+              <div class="awareness-icon">⚠️</div>
+              <div class="awareness-text">
+                <h4>Warning Signs</h4>
+                <p>
+                  Chest pain, shortness of breath, dizziness, fainting, rapid
+                  heartbeat, fatigue during exercise, family history of sudden
+                  cardiac death
+                </p>
+              </div>
+            </div>
+
+            <div class="awareness-item risk">
+              <div class="awareness-icon">⚡</div>
+              <div class="awareness-text">
+                <h4>Risk Factors</h4>
+                <p>
+                  Hypertrophic cardiomyopathy, long QT syndrome, excessive
+                  caffeine, performance-enhancing drugs, intense physical
+                  activity, genetic disorders
+                </p>
+              </div>
+            </div>
+
+            <div class="awareness-item prevention">
+              <div class="awareness-icon">🛡️</div>
+              <div class="awareness-text">
+                <h4>Prevention Keys</h4>
+                <p>
+                  Regular cardiac screening, healthy lifestyle, stress
+                  management, avoiding stimulants, proper hydration, gradual
+                  exercise progression
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="risk-levels">
+          <h2 class="section-title">📊 Risk Level Actions</h2>
+
+          <div class="risk-level-item risk-low">
+            <div class="risk-title">
+              Low Risk
+              <span class="risk-badge low-badge">0-25%</span>
+            </div>
+            <div class="risk-actions">
+              <ul>
+                <li>Continue healthy lifestyle habits</li>
+                <li>Annual health check-ups</li>
+                <li>Regular moderate exercise</li>
+                <li>Stay hydrated during activities</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="risk-level-item risk-moderate">
+            <div class="risk-title">
+              Moderate Risk
+              <span class="risk-badge moderate-badge">25-50%</span>
+            </div>
+            <div class="risk-actions">
+              <ul>
+                <li>Consult cardiologist within 3 months</li>
+                <li>Consider ECG and echocardiogram</li>
+                <li>Modify exercise intensity</li>
+                <li>Monitor symptoms closely</li>
+                <li>Reduce stress and caffeine intake</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="risk-level-item risk-high">
+            <div class="risk-title">
+              High Risk
+              <span class="risk-badge high-badge">50-75%</span>
+            </div>
+            <div class="risk-actions">
+              <ul>
+                <li>URGENT: See cardiologist within 2 weeks</li>
+                <li>Complete cardiac evaluation required</li>
+                <li>Avoid intense physical activity</li>
+                <li>Consider medication/intervention</li>
+                <li>Family screening recommended</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="risk-level-item risk-critical">
+            <div class="risk-title">
+              Critical Risk
+              <span class="risk-badge critical-badge">75-100%</span>
+            </div>
+            <div class="risk-actions">
+              <ul>
+                <li>EMERGENCY: See cardiologist immediately</li>
+                <li>Comprehensive cardiac testing</li>
+                <li>Restrict all strenuous activities</li>
+                <li>Consider ICD placement</li>
+                <li>Immediate lifestyle modifications</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section -->
+      <div class="bottom-section">
+        <div class="emergency-card pulse">
+          <div class="emergency-number">911</div>
+          <h3>Emergency Response</h3>
+          <p>If someone collapses suddenly:</p>
+          <p><strong>Call 911 → Start CPR → Use AED if available</strong></p>
+          <p style="margin-top: 16px; font-size: 0.9rem">
+            Every minute counts - immediate action saves lives
+          </p>
+        </div>
+
+        <div class="prevention-tips">
+          <h2 class="section-title">💡 Prevention Tips</h2>
+          <div class="tips-grid">
+            <div class="tip-item">
+              <div class="tip-icon">🏃</div>
+              <div>
+                <strong>Gradual Exercise:</strong> Build intensity slowly, warm
+                up properly
+              </div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-icon">💧</div>
+              <div>
+                <strong>Stay Hydrated:</strong> Drink plenty of water,
+                especially during exercise
+              </div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-icon">☕</div>
+              <div>
+                <strong>Limit Stimulants:</strong> Avoid excessive caffeine and
+                energy drinks
+              </div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-icon">😌</div>
+              <div>
+                <strong>Manage Stress:</strong> Practice meditation, yoga,
+                adequate sleep
+              </div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-icon">🩺</div>
+              <div>
+                <strong>Regular Screening:</strong> Annual ECG for high-risk
+                individuals
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <a href="#assessment" class="floating-action">
+        🫀 Take Risk Assessment
+      </a>
+    </div>
+  </body>
+</html>

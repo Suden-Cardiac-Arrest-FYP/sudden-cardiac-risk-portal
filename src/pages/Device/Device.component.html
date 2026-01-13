@@ -1,0 +1,261 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template
+    #headless
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div
+      class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded"
+    >
+      <span class="font-bold text-2xl block mb-2 mt-6">{{
+        message.header
+      }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button
+          label="Cancel"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="w-32"
+        ></p-button>
+        <p-button
+          label="Delete"
+          (onClick)="onAccept()"
+          styleClass="w-32"
+          severity="danger"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+<!-- Search and Action Buttons Section -->
+<div
+  class="mb-6 flex flex-col xl:flex-row items-center justify-between space-y-4 xl:space-y-0 xl:space-x-4"
+>
+  <p-iconfield class="w-full sm:w-auto">
+    <p-inputicon class="pi pi-search"> </p-inputicon>
+    <input
+      pInputText
+      type="text"
+      (input)="onGlobalFilter($event)"
+      placeholder="Search Device"
+      class="w-full sm:w-auto p-inputtext"
+    />
+  </p-iconfield>
+
+  <div
+    class="flex flex-wrap items-center gap-3 justify-center sm:justify-end w-full sm:w-auto"
+  >
+    <ng-container *ngIf="!isDataLoading">
+      <p-button
+        icon="pi pi-refresh"
+        outlined
+        severity="secondary"
+        (click)="reloadState()"
+        class="m-1"
+      />
+      <p-button
+        label="{{ currentPage }} of {{ totalPages }}"
+        outlined
+        severity="secondary"
+        class="m-1"
+      />
+      <p-button
+        icon="pi pi-chevron-left"
+        outlined
+        severity="secondary"
+        (click)="prev()"
+        [disabled]="isFirstPage()"
+        class="m-1"
+      />
+      <p-button
+        icon="pi pi-chevron-right"
+        outlined
+        severity="secondary"
+        (click)="next()"
+        [disabled]="isLastPage()"
+        class="m-1"
+      />
+    </ng-container>
+    <ng-container *ngIf="hasAccess('DTO5574', 'CREATE') && dtoName">
+      <p-divider layout="vertical" class="hidden sm:block m-0 p-0" />
+      <p-button
+        icon="pi pi-plus"
+        label="Create Device"
+        outlined
+        (click)="showCreateDeviceDialog()"
+        severity="secondary"
+        class="m-1"
+      />
+    </ng-container>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div
+  *ngIf="isDataLoading"
+  class="p-4 text-center flex justify-center items-center py-20"
+>
+  <div class="inline-flex items-center space-x-2 text-surface-500">
+    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+    <span class="text-sm">Loading Device...</span>
+  </div>
+</div>
+
+<!-- No Data State -->
+<div
+  *ngIf="!isDataLoading && DeviceData.length === 0"
+  class="flex flex-col items-center justify-center py-20"
+>
+  <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
+    <i class="pi pi-tablet" style="font-size: 3rem"></i>
+  </div>
+  <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+    No Device Found
+  </h3>
+  <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+    {{
+      searchQuery
+        ? "No Device match your search criteria. Try adjusting your search terms."
+        : "Create your first Device to get started."
+    }}
+  </p>
+  <p-button
+    *ngIf="hasAccess('DTO5574', 'CREATE') && dtoName && !searchQuery"
+    icon="pi pi-plus"
+    label="Create Your First Device"
+    (click)="showCreateDeviceDialog()"
+    severity="secondary"
+  />
+</div>
+
+<!-- Device Cards Grid -->
+<div
+  class="w-full h-full overflow-y-auto"
+  *ngIf="!isDataLoading && DeviceData.length > 0"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6">
+    <div
+      *ngFor="let device of DeviceData; trackBy: trackByDeviceId"
+      class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group hover:scale-105 border border-gray-100 dark:border-gray-700"
+    >
+      <!-- Device Image Header -->
+      <div class="relative h-48 overflow-hidden">
+        <img 
+          [src]="getDeviceImage(device.DeviceId)" 
+          [alt]="'Device ' + device.DeviceId"
+          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          loading="lazy"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        
+        <!-- Status Badge on Image -->
+        <div class="absolute top-4 right-4">
+          <span 
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/20"
+            [class]="getStatusClass(device.Status)"
+          >
+            <span 
+              class="w-2 h-2 rounded-full mr-2 animate-pulse"
+              [class]="getStatusDotClass(device.Status)"
+            ></span>
+            {{ getStatusText(device.Status) }}
+          </span>
+        </div>
+
+        <!-- Device ID Overlay -->
+        <div class="absolute bottom-4 left-4">
+          <h3 class="text-xl font-bold text-white drop-shadow-lg">
+            {{ device.DeviceId }}
+          </h3>
+        </div>
+      </div>
+
+      <!-- Device Content -->
+      <div class="p-6">
+        <!-- Device Information Grid -->
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center shrink-0">
+              <i class="pi pi-globe text-blue-600 dark:text-blue-400"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">IP Address</p>
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                {{ device.Ip || 'Not configured' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+            <div class="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center shrink-0">
+              <i class="pi pi-server text-green-600 dark:text-green-400"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Port</p>
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                {{ device.Port || 'Not set' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+            <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center shrink-0">
+              <i class="pi pi-map-marker text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Location</p>
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                {{ device.Location || 'Not specified' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+          <p-button
+            *ngIf="hasAccess('DTO5574', 'UPDATE')"
+            icon="pi pi-pencil"
+            label="Edit"
+            (click)="showEditDeviceDialog(device)"
+            size="small"
+            [outlined]="true"
+            severity="secondary"
+            class="flex-1 text-sm"
+            pTooltip="Edit Device"
+            tooltipPosition="top"
+          ></p-button>
+          <p-button
+            *ngIf="hasAccess('DTO5574', 'DELETE')"
+            icon="pi pi-trash"
+            (click)="deleteDevice(device)"
+            severity="danger"
+            size="small"
+            [outlined]="true"
+            class="px-4"
+            pTooltip="Delete Device"
+            tooltipPosition="top"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

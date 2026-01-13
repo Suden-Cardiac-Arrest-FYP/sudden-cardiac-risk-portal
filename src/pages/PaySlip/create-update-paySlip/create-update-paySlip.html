@@ -1,0 +1,498 @@
+<form
+  [formGroup]="paySlipForm"
+  class="card grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"
+>
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="PaySlipId"
+        formControlName="PaySlipId"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="PaySlipId">Pay Slip ID</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('PaySlipId')?.touched && paySlipForm.get('PaySlipId')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Pay Slip ID is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="EmployeeName"
+        formControlName="EmployeeName"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="EmployeeName">Employee Name</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('EmployeeName')?.touched && paySlipForm.get('EmployeeName')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Employee Name is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="EpFNumber"
+        formControlName="EpFNumber"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="EpFNumber">EPF Number</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Designation"
+        formControlName="Designation"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Designation">Designation</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Month"
+        formControlName="Month"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Month">Month</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('Month')?.touched && paySlipForm.get('Month')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Month is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Year"
+        formControlName="Year"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="Year">Year</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('Year')?.touched && paySlipForm.get('Year')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Year is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="BasicSalary"
+        formControlName="BasicSalary"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="BasicSalary">Basic Salary</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('BasicSalary')?.touched && paySlipForm.get('BasicSalary')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Basic Salary is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="ConsolidatedSalary"
+        formControlName="ConsolidatedSalary"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="ConsolidatedSalary">Consolidated Salary</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="BRA01"
+        formControlName="BRA01"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="BRA01">BRA01</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="BRA02"
+        formControlName="BRA02"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="BRA02">BRA02</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="EmployeeId"
+        formControlName="EmployeeId"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="EmployeeId">Employee ID</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('EmployeeId')?.touched && paySlipForm.get('EmployeeId')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Employee ID is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="WorkingDays"
+        formControlName="WorkingDays"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="WorkingDays">Working Days</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('WorkingDays')?.touched && paySlipForm.get('WorkingDays')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Working Days is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="WorkedDays"
+        formControlName="WorkedDays"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="WorkedDays">Worked Days</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        paySlipForm.get('WorkedDays')?.touched && paySlipForm.get('WorkedDays')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Worked Days is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="NoPayDays"
+        formControlName="NoPayDays"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="NoPayDays">No Pay Days</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="NoPayAmount"
+        formControlName="NoPayAmount"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="NoPayAmount">No Pay Amount</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="LateMinutes"
+        formControlName="LateMinutes"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="LateMinutes">Late Minutes</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="LateMinutesDeduction"
+        formControlName="LateMinutesDeduction"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="LateMinutesDeduction">Late Minutes Deduction</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="PayCuts"
+        formControlName="PayCuts"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="PayCuts">Pay Cuts</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="SalaryForEPF"
+        formControlName="SalaryForEPF"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="SalaryForEPF">Salary for EPF</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="GrossSalary"
+        formControlName="GrossSalary"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="GrossSalary">Gross Salary</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Epf8Percent"
+        formControlName="Epf8Percent"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="Epf8Percent">EPF 8%</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="StampDuty"
+        formControlName="StampDuty"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="StampDuty">Stamp Duty</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="PayeTax"
+        formControlName="PayeTax"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="PayeTax">PAYE Tax</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="TotalAdditions"
+        formControlName="TotalAdditions"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="TotalAdditions">Total Additions</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="TotalDeductions"
+        formControlName="TotalDeductions"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="TotalDeductions">Total Deductions</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="NetSalary"
+        formControlName="NetSalary"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="NetSalary">Net Salary</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Etf3Percent"
+        formControlName="Etf3Percent"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="Etf3Percent">ETF 3%</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Epf12Percent"
+        formControlName="Epf12Percent"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="Epf12Percent">EPF 12%</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="CostToTheCompany"
+        formControlName="CostToTheCompany"
+        autocomplete="off"
+        class="w-full"
+        type="number"
+      />
+      <label for="CostToTheCompany">Cost To The Company</label>
+    </p-floatlabel>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>

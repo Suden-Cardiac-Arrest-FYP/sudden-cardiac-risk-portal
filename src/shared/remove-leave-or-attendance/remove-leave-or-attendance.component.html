@@ -1,0 +1,218 @@
+<div class="bg-surface-0 dark:bg-surface-900">
+  <!-- Header -->
+  <div class="text-center mb-6 p-6 border-b border-surface-200 dark:border-surface-700">
+    <div class="flex items-center justify-center mb-3">
+      <i class="pi pi-exclamation-triangle text-3xl text-orange-500 mr-3"></i>
+      <h2 class="text-2xl font-bold text-surface-900 dark:text-surface-0">
+        Attendance & Leave Conflict
+      </h2>
+    </div>
+    <p class="text-surface-600 dark:text-surface-400 mb-2">
+      This employee has both attendance and leave records on 
+      <span class="font-semibold text-primary-600 dark:text-primary-400">{{ conflictDate | date:'mediumDate' }}</span>
+    </p>
+    <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mt-3">
+      <p class="text-sm text-orange-800 dark:text-orange-200">
+        <i class="pi pi-info-circle mr-2"></i>
+        Please review both records below and delete one to resolve the conflict
+      </p>
+    </div>
+  </div>
+
+    <div
+    *ngIf="isDataLoading"
+    class="p-4 text-center flex justify-center items-center py-20"
+  >
+    <div class="inline-flex items-center space-x-2 text-surface-500">
+      <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <span class="text-sm">Loading conflict data...</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isDataLoading" class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      
+      <!-- Leave Records -->
+      <div class="space-y-4 h-full">
+        <h3 class="text-xl font-semibold text-surface-900 dark:text-surface-0 mb-4 flex items-center">
+          <i class="pi pi-calendar-times text-red-500 mr-2"></i>
+          Leave Records ({{ Leave.length }})
+        </h3>
+        
+        <div *ngFor="let leave of Leave" 
+             class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-md transition-shadow h-full flex flex-col">
+          
+          <!-- Employee Info -->
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-semibold text-surface-900 dark:text-surface-0">{{ leave.Name }}</h4>
+              <p class="text-sm text-surface-600 dark:text-surface-400">EPF: {{ leave.EpfNumber }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': getLeaveStatusSeverity(leave.Status!) === 'success',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': getLeaveStatusSeverity(leave.Status!) === 'warning',
+                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': getLeaveStatusSeverity(leave.Status!) === 'danger',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': getLeaveStatusSeverity(leave.Status!) === 'info'
+                  }">
+              {{ leave.Status }}
+            </span>
+          </div>
+
+          <!-- Leave Details -->
+          <div class="space-y-2 mb-4 flex-grow">
+            <div class="flex justify-between text-sm">
+              <span class="text-surface-600 dark:text-surface-400">Leave Type:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">{{ leave.LeaveType }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-surface-600 dark:text-surface-400">Date Range:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">{{ leave.LeavingDateRange }}</span>
+            </div>
+            <div *ngIf="leave.Reason" class="flex justify-between text-sm">
+              <span class="text-surface-600 dark:text-surface-400">Reason:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0 text-right max-w-xs">{{ leave.Reason }}</span>
+            </div>
+            <div *ngIf="leave.ApprovedBy" class="flex justify-between text-sm">
+              <span class="text-surface-600 dark:text-surface-400">Approved By:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">{{ leave.ApprovedBy }}</span>
+            </div>
+            
+            <!-- Add spacer divs to ensure consistent height -->
+            <div *ngIf="!leave.Reason" class="text-sm opacity-0">
+              <span class="text-surface-600 dark:text-surface-400">Spacer:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">-</span>
+            </div>
+            <div *ngIf="!leave.ApprovedBy" class="text-sm opacity-0">
+              <span class="text-surface-600 dark:text-surface-400">Spacer:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">-</span>
+            </div>
+          </div>
+
+          <!-- Leave Actions -->
+          <div class="flex gap-2 pt-3 border-t border-surface-200 dark:border-surface-700 w-full mt-auto">
+            <p-button 
+              label="View Leave" 
+              icon="pi pi-eye"
+              size="small"
+              class="w-full"
+              styleClass="flex-1 p-button-outlined p-button-primary"
+              (onClick)="viewLeave(leave)">
+            </p-button>
+          </div>
+        </div>
+
+        <div *ngIf="Leave.length === 0" 
+             class="text-center py-8 text-surface-500 dark:text-surface-400 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg">
+          <i class="pi pi-info-circle text-2xl mb-2"></i>
+          <p>No leave records found</p>
+        </div>
+      </div>
+
+      <!-- Attendance Records -->
+      <div class="space-y-4 h-full">
+        <h3 class="text-xl font-semibold text-surface-900 dark:text-surface-0 mb-4 flex items-center">
+          <i class="pi pi-clock text-blue-500 mr-2"></i>
+          Attendance Records ({{ Attendances.length }})
+        </h3>
+        
+        <div *ngFor="let attendance of Attendances" 
+             class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-md transition-shadow h-full flex flex-col">
+          
+          <!-- Attendance Header -->
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-semibold text-surface-900 dark:text-surface-0">Attendance Record</h4>
+              <p class="text-sm text-surface-600 dark:text-surface-400">{{ attendance.Date | date:'mediumDate' }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': getAttendanceStatusSeverity(attendance.AttendanceStatus!) === 'success',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': getAttendanceStatusSeverity(attendance.AttendanceStatus!) === 'warning',
+                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': getAttendanceStatusSeverity(attendance.AttendanceStatus!) === 'danger',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': getAttendanceStatusSeverity(attendance.AttendanceStatus!) === 'info'
+                  }">
+              {{ attendance.AttendanceStatus }}
+            </span>
+          </div>
+
+          <!-- Attendance Details -->
+          <div class="space-y-2 mb-4 flex-grow">
+            <div class="flex justify-between text-sm">
+              <span class="text-surface-600 dark:text-surface-400">Shift Time:</span>
+              <span class="font-medium text-surface-900 dark:text-surface-0">
+                {{ attendance.ShiftStartTime }} - {{ attendance.ShiftEndTime }}
+              </span>
+            </div>
+            
+            <!-- Time Entries -->
+            <div *ngIf="attendance.time && attendance.time.length > 0; else noTimeEntries">
+              <span class="text-sm text-surface-600 dark:text-surface-400">Time Entries:</span>
+              <div class="mt-1 space-y-1">
+                <div *ngFor="let timeEntry of attendance.time" 
+                     class="flex justify-between text-sm bg-surface-100 dark:bg-surface-700 rounded px-2 py-1">
+                  <span class="text-surface-700 dark:text-surface-300">In: {{ timeEntry.inTime }}</span>
+                  <span class="text-surface-700 dark:text-surface-300">Out: {{ timeEntry.endTime }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <ng-template #noTimeEntries>
+              <div class="flex justify-between text-sm">
+                <span class="text-surface-600 dark:text-surface-400">Time Entries:</span>
+                <span class="font-medium text-surface-900 dark:text-surface-0">No entries</span>
+              </div>
+              <!-- Add spacer to match potential leave card height -->
+              <div class="text-sm opacity-0">
+                <span class="text-surface-600 dark:text-surface-400">Spacer:</span>
+                <span class="font-medium text-surface-900 dark:text-surface-0">-</span>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Attendance Actions -->
+          <div class="flex gap-2 pt-3 border-t border-surface-200 dark:border-surface-700 w-full mt-auto">
+            <p-button 
+              label="View Attendance" 
+              icon="pi pi-eye"
+              size="small"
+              class="w-full"
+              styleClass="flex-1 p-button-outlined p-button-primary"
+              (onClick)="viewAttendance(attendance)">
+            </p-button>
+          </div>
+        </div>
+
+        <div *ngIf="Attendances.length === 0" 
+             class="text-center py-8 text-surface-500 dark:text-surface-400 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg">
+          <i class="pi pi-info-circle text-2xl mb-2"></i>
+          <p>No attendance records found</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700 text-center">
+      <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">
+        Once you delete one of the conflicting records, the conflict will be resolved automatically.
+      </p>
+    </div>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

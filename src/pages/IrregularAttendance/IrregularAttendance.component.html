@@ -1,0 +1,216 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+      <span class="font-bold text-2xl block mb-2 mt-6">{{
+        message.header
+        }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button label="Cancel" [outlined]="true" (onClick)="onReject()" styleClass="w-32"></p-button>
+        <p-button label="Delete" (onClick)="onAccept()" styleClass="w-32" severity="danger"></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+<!-- Search and Action Buttons Section -->
+<div class="mb-4 flex flex-col xl:flex-row items-center justify-between space-y-4 xl:space-y-0 xl:space-x-4">
+  <p-iconfield class="w-full sm:w-auto">
+    <p-inputicon class="pi pi-search"> </p-inputicon>
+    <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Search Irregular Attendance"
+      class="w-full sm:w-auto p-inputtext" />
+  </p-iconfield>
+
+  <div class="flex flex-wrap items-center gap-3 justify-center sm:justify-end w-full sm:w-auto">
+    <ng-container *ngIf="!isDataLoading">
+      <p-button icon="pi pi-refresh" outlined severity="secondary" (click)="reloadState()" class="m-1" />
+      <p-button label="{{ currentPage }} of {{ totalPages }}" outlined severity="secondary" class="m-1" />
+      <p-button icon="pi pi-chevron-left" outlined severity="secondary" (click)="prev()" [disabled]="isFirstPage()"
+        class="m-1" />
+      <p-button icon="pi pi-chevron-right" outlined severity="secondary" (click)="next()" [disabled]="isLastPage()"
+        class="m-1" />
+    </ng-container>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isDataLoading" class="p-4 text-center flex justify-center items-center py-20">
+  <div class="inline-flex items-center space-x-2 text-surface-500">
+    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor"
+        d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+      </path>
+    </svg>
+    <span class="text-sm">Loading Irregular Attendance...</span>
+  </div>
+</div>
+
+<!-- No Data State -->
+<div *ngIf="!isDataLoading && IrregularAttendanceData.length === 0"
+  class="flex flex-col items-center justify-center py-20">
+  <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
+    <i class="pi pi-clipboard-check" style="font-size: 3rem"></i>
+  </div>
+  <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+    No Irregular Attendance Found
+  </h3>
+  <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+    {{
+    searchQuery
+    ? "No Irregular Attendance match your search criteria. Try adjusting your search terms."
+    : ""
+    }}
+  </p>
+</div>
+
+<!-- Data Table -->
+<div class="w-full h-full overflow-y-auto scrollbar-hide" *ngIf="!isDataLoading && IrregularAttendanceData.length > 0">
+  <div class="overflow-x-auto">
+    <p-table #table #dt [value]="IrregularAttendanceData" [(selection)]="selectedRows" dataKey="AttendanceId"
+      [rows]="rows" [paginator]="false" [first]="first" [globalFilterFields]="[
+        'AttendanceId',
+        'Date',
+        'EmployeeId',
+        'InTime',
+        'OutTime',
+        'ShiftStartTime',
+        'ShiftEndTime',
+      ]" class="min-w-full" [loading]="isDataLoading" styleClass="p-datatable-sm">
+      <!-- Table Header Template -->
+      <ng-template #header>
+        <tr>
+          <th style="width: 1rem">
+            <p-tableHeaderCheckbox />
+          </th>
+          <th>Attendance ID</th>
+          <th>Date</th>
+          <th>Employee</th>
+          <th>In Time</th>
+          <th>Out Time</th>
+          <th>Shift Hours</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body Template -->
+      <ng-template #body let-AttendanceData let-rowIndex="rowIndex">
+        <tr class="border-b transition-colors" [class.bg-gray-50]="rowIndex % 2 === 0"
+          [class.dark:bg-gray-800]="rowIndex % 2 === 0">
+          <td class="w-12 px-4 py-3">
+            <p-tableCheckbox [value]="AttendanceData" />
+          </td>
+          <td class="px-4 py-3">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              {{ AttendanceData.AttendanceId }}
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="text-sm text-gray-900 dark:text-gray-100">
+              {{ AttendanceData.Date | date : "MMM dd, yyyy" }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              {{ AttendanceData.Date | date: 'EEEE' }}
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center">
+              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+                <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  {{ getEmployeeName(AttendanceData.EmployeeId).charAt(0).toUpperCase() }}
+                </span>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {{ getEmployeeName(AttendanceData.EmployeeId) }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ AttendanceData.EmployeeId }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 align-top">
+            <div class="flex flex-col space-y-1">
+              <ng-container *ngIf="AttendanceData.time?.length > 0; else noCheckIn">
+                <div *ngFor="let t of AttendanceData.time" class="flex items-center">
+                  <i class="pi pi-sign-in text-green-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {{ t.inTime || '—' }}
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noCheckIn>
+                <div class="flex items-center">
+                  <i class="pi pi-sign-in text-green-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Not checked in
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </td>
+
+          <td class="px-4 py-3 align-top">
+            <div class="flex flex-col space-y-1">
+              <ng-container *ngIf="AttendanceData.time?.length > 0; else noCheckOut">
+                <div *ngFor="let t of AttendanceData.time" class="flex items-center">
+                  <i class="pi pi-sign-out text-red-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {{ t.endTime || '—' }}
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noCheckOut>
+                <div class="flex items-center">
+                  <i class="pi pi-sign-out text-red-500 mr-2"></i>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Not checked out
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="text-sm text-gray-900 dark:text-gray-100">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-gray-500">Start:</span>
+                <span class="font-medium">{{ AttendanceData.ShiftStartTime }}</span>
+              </div>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="text-xs text-gray-500 mr-1.5">End:</span>
+                <span class="font-medium">{{ AttendanceData.ShiftEndTime }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                   'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': getAttendanceStatusSeverity(AttendanceData) === 'irregular',
+                   'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200': getAttendanceStatusSeverity(AttendanceData) === 'partial',
+                   'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': getAttendanceStatusSeverity(AttendanceData) === 'complete'
+                 }">
+              <i class="pi mr-1" [ngClass]="{
+                   'pi-times-circle': getAttendanceStatusSeverity(AttendanceData) === 'irregular',
+                   'pi-exclamation-triangle': getAttendanceStatusSeverity(AttendanceData) === 'partial',
+                   'pi-check-circle': getAttendanceStatusSeverity(AttendanceData) === 'complete'
+                 }"></i>
+              {{ getAttendanceStatusText(AttendanceData) }}
+            </div>
+          </td>
+          <td>
+            <div class="w-full">
+              <div class="flex gap-2">
+                <p-button *ngIf="hasAccess('DTO5532', 'UPDATE')" icon="pi pi-pencil"
+                  (click)="showResolveAttendanceDialogDefault(AttendanceData)" size="small" [rounded]="true"
+                  variant="outlined" pTooltip="Edit" tooltipPosition="top"></p-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

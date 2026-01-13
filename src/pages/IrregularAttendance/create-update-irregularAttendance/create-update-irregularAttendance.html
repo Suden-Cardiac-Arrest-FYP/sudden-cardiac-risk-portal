@@ -1,0 +1,52 @@
+<form
+  [formGroup]="irregularAttendanceForm"
+  class="card grid grid-cols-1 gap-4 mt-4"
+>
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <p-datepicker
+        formControlName="Date"
+        showIcon
+        iconDisplay="input"
+        styleClass="w-full"
+        appendTo="body"
+      />
+      <label for="Date">Date</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Reason"
+        formControlName="Reason"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Reason">Reason</label>
+    </p-floatlabel>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<form [formGroup]="companyForm" class="card grid grid-cols-1 gap-4 mt-4">
+
+    <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="CompanyLogo"
+        formControlName="CompanyLogo"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="CompanyLogo">Company Logo</label>
+    </p-floatlabel>
+  </div>
+   
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Name"
+        formControlName="Name"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Name">Name</label>
+    </p-floatlabel>    
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Type"
+        formControlName="Type"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Name">Type</label>
+    </p-floatlabel>     
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Email"
+        formControlName="Email"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Email">Email</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Phone"
+        formControlName="Phone"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Phone">Phone</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="Address"
+        formControlName="Address"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="Address">Address</label>
+    </p-floatlabel>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="NoOFEmployees"
+        formControlName="NoOFEmployees"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="NoOFEmployees">No. of Employees</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        companyForm.get('NoOFEmployees')?.touched && companyForm.get('NoOFEmployees')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      No. of Employees is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="BrNo"
+        formControlName="BrNo"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="BrNo">BR Number</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        companyForm.get('BrNo')?.touched && companyForm.get('BrNo')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      BR Number is required.
+    </small>
+  </div>
+
+  <div>
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="EpfNumber"
+        formControlName="EpfNumber"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="EpfNumber">EPF Number</label>
+    </p-floatlabel>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>

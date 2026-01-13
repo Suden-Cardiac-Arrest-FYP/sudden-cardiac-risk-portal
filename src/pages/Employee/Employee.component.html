@@ -1,0 +1,492 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template
+    #headless
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div
+      class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded"
+    >
+      <span class="font-bold text-2xl block mb-2 mt-6">{{
+        message.header
+      }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button
+          label="Cancel"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="w-32"
+        ></p-button>
+        <p-button
+          label="Delete"
+          (onClick)="onAccept()"
+          styleClass="w-32"
+          severity="danger"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+<div class="container mx-auto px-4">
+  <!-- Header Section -->
+  <div
+    class="flex flex-col xl:flex-row items-center xl:items-start gap-2 justify-between"
+  >
+    <div>
+      <div class="text-2xl leading-8 text-color font-medium">Employee</div>
+    </div>
+  </div>
+
+  <!-- Search and Action Buttons Section -->
+  <div
+    class="mt-10 mb-4 flex flex-col xl:flex-row items-center justify-between space-y-4 xl:space-y-0 xl:space-x-4"
+  >
+    <p-iconfield class="w-full sm:w-auto">
+      <p-inputicon class="pi pi-search"> </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter($event)"
+        placeholder="Search Employee"
+        class="w-full sm:w-auto p-inputtext"
+      />
+    </p-iconfield>
+
+    <div
+      class="flex flex-wrap items-center gap-3 justify-center sm:justify-end w-full sm:w-auto"
+    >
+      <ng-container *ngIf="!isDataLoading">
+        <p-button
+          icon="pi pi-refresh"
+          outlined
+          severity="secondary"
+          (click)="reloadState()"
+          class="m-1"
+        />
+        <p-button
+          label="{{ currentPage }} of {{ totalPages }}"
+          outlined
+          severity="secondary"
+          class="m-1"
+        />
+        <p-button
+          icon="pi pi-chevron-left"
+          outlined
+          severity="secondary"
+          (click)="prev()"
+          [disabled]="isFirstPage()"
+          class="m-1"
+        />
+        <p-button
+          icon="pi pi-chevron-right"
+          outlined
+          severity="secondary"
+          (click)="next()"
+          [disabled]="isLastPage()"
+          class="m-1"
+        />
+      </ng-container>
+      <ng-container *ngIf="hasAccess('DTO5525', 'CREATE') && dtoName">
+        <p-divider layout="vertical" class="hidden sm:block m-0 p-0" />
+        <p-button
+          icon="pi pi-plus"
+          label="Create Employee"
+          outlined
+          (click)="showCreateEmployeeDialog()"
+          severity="secondary"
+          class="m-1"
+        />
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div
+    *ngIf="isDataLoading"
+    class="p-4 text-center flex justify-center items-center py-20"
+  >
+    <div class="inline-flex items-center space-x-2 text-surface-500">
+      <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <span class="text-sm">Loading Employee...</span>
+    </div>
+  </div>
+
+  <!-- No Data State -->
+  <div
+    *ngIf="!isDataLoading && EmployeeData.length === 0"
+    class="flex flex-col items-center justify-center py-20"
+  >
+    <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
+      <i class="pi pi-user-tie" style="font-size: 3rem"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+      No Employee Found
+    </h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+      {{
+        searchQuery
+          ? "No Employee match your search criteria. Try adjusting your search terms."
+          : "Create your first Employee to get started."
+      }}
+    </p>
+    <p-button
+      *ngIf="hasAccess('DTO5525', 'CREATE') && dtoName!; searchQuery"
+      icon="pi pi-plus"
+      label="Create Your First Employee"
+      (click)="showCreateEmployeeDialog()"
+      severity="secondary"
+    />
+  </div>
+
+  <div
+    class="w-full h-full overflow-y-auto scrollbar-hide"
+    *ngIf="!isDataLoading && EmployeeData.length > 0"
+  >
+    <p-table
+      #table
+      #dt
+      [value]="EmployeeData"
+      [(selection)]="selectedRows"
+      dataKey="EmployeeId"
+      [rows]="rows"
+      [paginator]="false"
+      [first]="first"
+      [globalFilterFields]="[
+        'Name',
+        'FingerprintAllocated',
+        'EpfNumber',
+        'designation',
+        'Department',
+        'EmpType',
+        'Gender',
+        'DateOfBirth',
+        'Address',
+        'NicNumber',
+        'DateJoined'
+      ]"
+      scrollHeight="calc(100vh - 200px)"
+      class="w-full min-w-[1200px]"
+      [loading]="isDataLoading"
+      styleClass="p-datatable-striped"
+    >
+      <!-- Table Header Template -->
+      <ng-template #header>
+        <tr>
+          <th style="width: 1rem">
+            <p-tableHeaderCheckbox />
+          </th>
+          <th style="width: 80px">Profile</th>
+          <th>Employee Name</th>
+          <th>Fingerprint Status</th>
+          <th>EPF Number</th>
+          <th>Designation</th>
+          <th>Department</th>
+          <th>Employee Type</th>
+          <th>Status</th>
+          <th>Gender</th>
+          <th>Date Of Birth</th>
+          <th>NIC Number</th>
+          <th>Date Joined</th>
+          <th>Documents</th>
+          <th style="width: 120px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body Template -->
+      <ng-template #body let-employee>
+        <tr>
+          <td style="width: 1rem">
+            <p-tableCheckbox [value]="employee" />
+          </td>
+
+          <!-- Profile Image -->
+          <td style="width: 80px">
+            <div class="flex items-center justify-center">
+              <div
+                class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+              >
+                <img
+                  *ngIf="employee.ProfileImage && employee.ProfileImage !== ''"
+                  [src]="employee.ProfileImage"
+                  [alt]="employee.Name"
+                  class="w-full h-full object-cover"
+                  (error)="onImageError($event)"
+                />
+                <div
+                  *ngIf="!employee.ProfileImage || employee.ProfileImage === ''"
+                  class="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm"
+                >
+                  {{ getInitials(employee.Name) }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Employee Name -->
+          <td class="px-4 py-3">
+            <div class="flex items-center">
+              <div
+                class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3"
+              >
+                <span
+                  class="text-sm font-medium text-blue-800 dark:text-blue-200"
+                >
+                  {{ employee.Name.charAt(0).toUpperCase() }}
+                </span>
+              </div>
+              <div>
+                <div
+                  class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                >
+                  {{ employee.Name }}
+                </div>
+                <div
+                  class="text-xs text-gray-500 dark:text-gray-400"
+                  *ngIf="employee.CallingName"
+                >
+                  {{ employee.CallingName }}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <!-- Fingerprint Status -->
+          <td>
+            <div class="flex items-center">
+              <button
+                *ngIf="!employee.FingerprintAllocated"
+                pButton
+                type="button"
+                label="Not Allocated"
+                class="p-button-sm p-button-text"
+                style="
+                  color: #e11d48;
+                  background-color: #fef2f2;
+                  font-size: 11px;
+                  padding: 4px 11px;
+                  border-radius: 6px;
+                  font-weight: 500;
+                "
+                (click)="openFingerprintAllocation(employee)"
+              ></button>
+              <span
+                *ngIf="employee.FingerprintAllocated"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700"
+              >
+                <i class="pi pi-check-circle mr-1"></i>
+                Allocated
+              </span>
+            </div>
+          </td>
+
+          <!-- EPF Number -->
+          <td>
+            <span class="font-mono text-sm text-gray-900 dark:text-gray-100">{{
+              employee.EpfNumber || "-"
+            }}</span>
+          </td>
+
+          <!-- Designation -->
+          <td>
+            <span class="text-gray-900 dark:text-gray-100">{{
+              getDesignationName(employee.designation)
+            }}</span>
+          </td>
+
+          <!-- Department -->
+          <td>
+            <span class="text-gray-900 dark:text-gray-100">{{
+              getDepartmentName(employee.Department)
+            }}</span>
+          </td>
+
+          <!-- Employee Type -->
+          <td>
+            <span
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700':
+                  employee.EmpType === 'GeneralPermanent',
+                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700':
+                  employee.EmpType === 'Probationary',
+                'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-700':
+                  employee.EmpType === 'ServicePermanent',
+                'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600':
+                  !employee.EmpType
+              }"
+            >
+              {{ getEmployeeTypeLabel(employee.EmpType) }}
+            </span>
+          </td>
+
+          <!-- Active Status -->
+          <td>
+            <span
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700':
+                  employee.IsActive,
+                'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700':
+                  !employee.IsActive
+              }"
+            >
+              <i
+                class="pi mr-1"
+                [ngClass]="{
+                  'pi-check-circle': employee.IsActive,
+                  'pi-times-circle': !employee.IsActive
+                }"
+              ></i>
+              {{ employee.IsActive ? "Active" : "Inactive" }}
+            </span>
+          </td>
+
+          <!-- Gender -->
+          <td>
+            <div class="flex items-center">
+              <i
+                class="pi mr-2"
+                [ngClass]="{
+                  'pi-mars text-blue-600 dark:text-blue-400':
+                    employee.gender === 'MALE',
+                  'pi-venus text-pink-600 dark:text-pink-400':
+                    employee.gender === 'FEMALE',
+                  'pi-user text-gray-600 dark:text-gray-400':
+                    employee.gender === 'OTHER' || !employee.gender
+                }"
+              ></i>
+              <span class="text-gray-900 dark:text-gray-100">{{
+                getGenderLabel(employee.gender)
+              }}</span>
+            </div>
+          </td>
+
+          <!-- Date Of Birth -->
+          <td>
+            <span class="text-sm text-gray-900 dark:text-gray-100">
+              {{ employee.DateOfBirth | date : "dd MMM yyyy" }}
+            </span>
+          </td>
+
+          <!-- NIC Number -->
+          <td>
+            <span class="font-mono text-sm text-gray-900 dark:text-gray-100">{{
+              employee.NicNumber || "-"
+            }}</span>
+          </td>
+
+          <!-- Date Joined -->
+          <td>
+            <span class="text-sm text-gray-900 dark:text-gray-100">
+              {{ employee.DateJoined | date : "dd MMM yyyy" }}
+            </span>
+          </td>
+
+          <!-- Documents -->
+          <td>
+            <button
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 hover:shadow-md"
+              [ngClass]="{
+                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 hover:bg-blue-200':
+                  employee.Documents && employee.Documents.length > 0,
+                'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:bg-gray-200':
+                  !employee.Documents || employee.Documents.length === 0
+              }"
+              (click)="showFilesDialog(employee.Documents, $event)"
+              [disabled]="
+                !employee.Documents || employee.Documents.length === 0
+              "
+            >
+              <i class="pi pi-file mr-1"></i>
+              {{ employee.Documents?.length || 0 }} files
+            </button>
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <div class="flex justify-end w-full">
+              <div class="flex gap-2">
+                <p-button
+                  *ngIf="hasAccess('DTO5525', 'UPDATE')"
+                  icon="pi pi-pencil"
+                  (click)="showEditEmployeeDialog(employee)"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  severity="secondary"
+                  pTooltip="Edit Employee"
+                  tooltipPosition="top"
+                  class="p-button-sm"
+                ></p-button>
+                <p-button
+                  *ngIf="hasAccess('DTO5525', 'DELETE')"
+                  icon="pi pi-trash"
+                  (click)="deleteEmployee(employee)"
+                  severity="danger"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  pTooltip="Delete Employee"
+                  tooltipPosition="top"
+                  class="p-button-sm"
+                ></p-button>
+                <p-button
+                  *ngIf="hasAccess('DTO5525', 'UPDATE')"
+                  pTooltip="Add Addition/Deduction"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  icon="pi pi-receipt"
+                  (click)="openAdditionDeductionDialog(employee)"
+                  class="p-button-sm"
+                ></p-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="15" class="text-center py-8">
+            <div class="flex flex-col items-center justify-center">
+              <i
+                class="pi pi-users text-4xl text-gray-300 dark:text-gray-600 mb-4"
+              ></i>
+              <h3
+                class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2"
+              >
+                No employees found
+              </h3>
+              <p class="text-gray-500 dark:text-gray-400">
+                {{
+                  searchQuery
+                    ? "Try adjusting your search criteria"
+                    : "Get started by creating your first employee"
+                }}
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

@@ -1,0 +1,563 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template
+    #headless
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div
+      class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded"
+    >
+      <span class="font-bold text-2xl block mb-2 mt-6">{{
+        message.header
+      }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button
+          label="Cancel"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="w-32"
+        ></p-button>
+        <p-button
+          label="Delete"
+          (onClick)="onAccept()"
+          styleClass="w-32"
+          severity="danger"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+
+<div class="container mx-auto px-4">
+  <!-- Header Section -->
+  <div
+    class="flex flex-col xl:flex-row items-center xl:items-start gap-2 justify-between mb-6"
+  >
+    <div>
+      <div class="text-2xl leading-8 text-color font-medium">Settings</div>
+    </div>
+    <div class="flex gap-2">
+      <p-button
+        icon="pi pi-refresh"
+        outlined
+        severity="secondary"
+        (click)="reloadCompanyData()"
+        pTooltip="Refresh"
+        tooltipPosition="top"
+      />
+    </div>
+  </div>
+
+  <!-- Tab View -->
+  <div class="card">
+    <p-tabView>
+      <p-tabPanel header="Company Details">
+        <!-- Loading State -->
+        <div
+          *ngIf="isDataLoading"
+          class="p-4 text-center flex justify-center items-center py-20"
+        >
+          <div class="inline-flex items-center space-x-2 text-surface-500">
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span class="text-sm">Loading Company Details...</span>
+          </div>
+        </div>
+
+        <!-- No Data State -->
+        <div
+          *ngIf="!isDataLoading && !companyData"
+          class="flex flex-col items-center justify-center py-20"
+        >
+          <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
+            <i class="pi pi-building" style="font-size: 3rem"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+            No Company Found
+          </h3>
+          <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+            No company data available. Please contact your administrator.
+          </p>
+        </div>
+
+        <!-- Company Details Form -->
+        <div
+          *ngIf="!isDataLoading && companyData"
+          class="w-full h-full overflow-y-auto scrollbar-hide"
+        >
+          <div class="bg-white dark:bg-surface-800 rounded-lg p-6">
+            <form [formGroup]="companyForm" class="space-y-6">
+              <h2 class="text-xl font-medium mb-6 text-gray-800 dark:text-gray-200">
+                Company Details
+              </h2>
+
+              <!-- Company Logo Section -->
+              <div class="space-y-3">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Company Logo</label
+                >
+                <div class="flex flex-row items-center gap-3 mb-3">
+                  <button
+                    pButton
+                    type="button"
+                    label="Browse"
+                    icon="pi pi-upload"
+                    class="p-button-outlined p-button-secondary"
+                    (click)="triggerFileInput()"
+                    [disabled]="uploadingImage || !isEditMode"
+                  ></button>
+                  <span class="text-sm text-gray-500">
+                    Accepted formats: JPG, PNG, GIF. Max file size: 1MB
+                  </span>
+                  <input
+                    #fileInput
+                    type="file"
+                    (change)="onFileSelect($event)"
+                    accept=".jpg,.png,.gif,.jpeg"
+                    class="hidden"
+                  />
+                </div>
+
+                <!-- Show current image if exists -->
+                <div *ngIf="currentImageUrl" class="mt-3">
+                  <div class="relative inline-block">
+                    <img
+                      [src]="currentImageUrl"
+                      alt="Current company logo"
+                      class="h-20 w-20 object-contain rounded border border-gray-200 bg-gray-50 p-1"
+                      (error)="onImageError($event)"
+                    />
+                    <button
+                      *ngIf="isEditMode"
+                      pButton
+                      type="button"
+                      icon="pi pi-times"
+                      class="p-button-rounded p-button-danger p-button-sm absolute -top-1 -right-1"
+                      (click)="removeImage()"
+                      [disabled]="uploadingImage"
+                      pTooltip="Remove image"
+                      tooltipPosition="top"
+                    ></button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Current Company Logo</p>
+                </div>
+
+                <!-- Upload progress indicator -->
+                <div *ngIf="uploadingImage" class="mt-3">
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-spinner pi-spin text-blue-500"></i>
+                    <span class="text-sm text-gray-600">Uploading image...</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Company Name -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Company Name</label
+                >
+                <input
+                  pInputText
+                  formControlName="Name"
+                  placeholder="Enter company name"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+                <small
+                  *ngIf="
+                    companyForm.get('Name')?.touched &&
+                    companyForm.get('Name')?.hasError('required')
+                  "
+                  class="text-red-600"
+                >
+                  Company Name is required.
+                </small>
+              </div>
+
+              <!-- Company Type -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Company Type</label
+                >
+                <input
+                  pInputText
+                  formControlName="Type"
+                  placeholder="Enter company type"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Company Email -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Company Email</label
+                >
+                <input
+                  pInputText
+                  formControlName="Email"
+                  placeholder="Enter company email"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Company Phone Number -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Company Phone Number</label
+                >
+                <input
+                  pInputText
+                  formControlName="Phone"
+                  placeholder="Enter Company Phone Number"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Number of Employees -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Number of Employees</label
+                >
+                <input
+                  pInputText
+                  formControlName="NoOFEmployees"
+                  placeholder="Enter number of employees"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  type="number"
+                  min="1"
+                  autocomplete="off"
+                />
+                <small
+                  *ngIf="
+                    companyForm.get('NoOFEmployees')?.touched &&
+                    companyForm.get('NoOFEmployees')?.hasError('required')
+                  "
+                  class="text-red-600"
+                >
+                  Number of Employees is required.
+                </small>
+                <small
+                  *ngIf="
+                    companyForm.get('NoOFEmployees')?.touched &&
+                    companyForm.get('NoOFEmployees')?.hasError('min')
+                  "
+                  class="text-red-600"
+                >
+                  Number of Employees must be at least 1.
+                </small>
+              </div>
+
+              <!-- Business Registration Number -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Business Registration Number</label
+                >
+                <input
+                  pInputText
+                  formControlName="BrNo"
+                  placeholder="Enter business registration number"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+                <small
+                  *ngIf="
+                    companyForm.get('BrNo')?.touched &&
+                    companyForm.get('BrNo')?.hasError('required')
+                  "
+                  class="text-red-600"
+                >
+                  Business Registration Number is required.
+                </small>
+              </div>
+
+              <!-- Website -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Website</label
+                >
+                <input
+                  pInputText
+                  formControlName="Website"
+                  placeholder="Enter company website"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- EPF Number -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >EPF Number</label
+                >
+                <input
+                  pInputText
+                  formControlName="EpfNumber"
+                  placeholder="Enter EPF number"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Address -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Address</label
+                >
+                <textarea
+                  rows="5"
+                  cols="30"
+                  formControlName="Address"
+                  pTextarea
+                  placeholder="Enter company address"
+                  class="w-full"
+                  [readonly]="!isEditMode"
+                  autocomplete="off"
+                ></textarea>
+              </div>
+            </form>
+
+            <!-- Action Buttons -->
+            <div
+              class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+              <p-button
+                *ngIf="isEditMode"
+                label="Cancel"
+                icon="pi pi-times"
+                [outlined]="true"
+                severity="secondary"
+                (click)="cancelEdit()"
+              ></p-button>
+              <p-button
+                *ngIf="!isEditMode"
+                label="Edit"
+                icon="pi pi-pencil"
+                severity="secondary"
+                (click)="enableEditMode()"
+              ></p-button>
+              <p-button
+                *ngIf="isEditMode"
+                label="Save"
+                icon="pi pi-save"
+                [loading]="isLoading"
+                (click)="saveCompany()"
+              ></p-button>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <p-tabPanel header="Job Description Master Data">
+        <div class="bg-white dark:bg-surface-800 rounded-lg p-6">
+          <form [formGroup]="jobDescriptionForm" class="space-y-6">
+            <h2 class="text-xl font-medium mb-6 text-gray-800 dark:text-gray-200">
+              Job Description Master Data
+            </h2>
+
+            <!-- Designation Dropdown -->
+            <div class="space-y-2">
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >Select Designation</label
+              >
+              <p-dropdown
+                formControlName="designationId"
+                [options]="designations"
+                optionLabel="Designation"
+                optionValue="DesignationId"
+                placeholder="Select a Designation"
+                class="w-full"
+                [loading]="isDesignationLoading"
+              ></p-dropdown>
+              <small
+                *ngIf="
+                  jobDescriptionForm.get('designationId')?.touched &&
+                  jobDescriptionForm.get('designationId')?.hasError('required')
+                "
+                class="text-red-600"
+              >
+                Designation is required.
+              </small>
+
+              <!-- Loading indicator for existing job description -->
+              <div *ngIf="isLoadingExistingJd" class="mt-2">
+                <div class="flex items-center gap-2 text-blue-600">
+                  <i class="pi pi-spinner pi-spin"></i>
+                  <span class="text-sm">Loading existing job description...</span>
+                </div>
+              </div>
+
+              <!-- Existing job description indicator -->
+              <div *ngIf="existingJobDescription && !isLoadingExistingJd" class="mt-2">
+                <div class="flex items-center gap-2 text-green-600">
+                  <i class="pi pi-check-circle"></i>
+                  <span class="text-sm">Existing job description loaded. You can modify and update it.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- KPIs Section -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label
+                  class="block text-lg font-medium text-gray-700 dark:text-gray-300"
+                  >KPIs</label
+                >
+                <p-button
+                  label="Add Main Category"
+                  icon="pi pi-plus"
+                  (click)="addMainCategory()"
+                  styleClass="p-button-outlined p-button-secondary"
+                ></p-button>
+              </div>
+
+              <!-- Main Categories -->
+              <div class="space-y-4" formArrayName="kpiCategories">
+                <div
+                  *ngFor="let category of kpiCategoriesArray.controls; let categoryIndex = index"
+                  class="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                  [formGroupName]="categoryIndex"
+                >
+                  <!-- Main Category Header -->
+                  <div class="flex items-center gap-3 mb-4">
+                    <input
+                      pInputText
+                      formControlName="name"
+                      placeholder="Main Category"
+                      class="flex-1"
+                    />
+                    <p-button
+                      icon="pi pi-minus"
+                      severity="danger"
+                      [outlined]="true"
+                      (click)="removeMainCategory(categoryIndex)"
+                      pTooltip="Remove Main Category"
+                      tooltipPosition="top"
+                    ></p-button>
+                  </div>
+
+                  <!-- Sub Categories -->
+                  <div class="space-y-2" formArrayName="subCategories">
+                    <div class="flex items-center justify-between mb-2">
+                      <label class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Sub Categories
+                      </label>
+                      <p-button
+                        icon="pi pi-plus"
+                        [outlined]="true"
+                        size="small"
+                        (click)="addSubCategory(categoryIndex)"
+                        pTooltip="Add Sub Category"
+                        tooltipPosition="top"
+                      ></p-button>
+                    </div>
+
+                    <div
+                      *ngFor="let subCategory of getSubCategoriesArray(categoryIndex).controls; let subIndex = index"
+                      class="flex items-center gap-2"
+                    >
+                      <input
+                        pInputText
+                        [formControlName]="subIndex"
+                        placeholder="Sub Category"
+                        class="flex-1"
+                      />
+                      <p-button
+                        icon="pi pi-minus"
+                        severity="danger"
+                        size="small"
+                        [outlined]="true"
+                        (click)="removeSubCategory(categoryIndex, subIndex)"
+                        pTooltip="Remove Sub Category"
+                        tooltipPosition="top"
+                      ></p-button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Empty state when no categories exist -->
+                <div 
+                  *ngIf="kpiCategoriesArray.length === 0" 
+                  class="text-center py-8 text-gray-500 dark:text-gray-400"
+                >
+                  <i class="pi pi-plus-circle text-4xl mb-3"></i>
+                  <p>No KPI categories added yet. Click "Add Main Category" to get started.</p>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >Notes</label
+                >
+                <textarea
+                  rows="4"
+                  formControlName="notes"
+                  pTextarea
+                  placeholder="Enter notes"
+                  class="w-full"
+                  autocomplete="off"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p-button
+                label="Reset"
+                icon="pi pi-refresh"
+                [outlined]="true"
+                severity="secondary"
+                (click)="resetJobDescriptionForm()"
+              ></p-button>
+              <p-button
+                [label]="existingJobDescription ? 'Update' : 'Save'"
+                icon="pi pi-save"
+                [loading]="isJdLoading"
+                (click)="saveJobDescription()"
+              ></p-button>
+            </div>
+          </form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>

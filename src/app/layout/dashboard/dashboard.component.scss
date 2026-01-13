@@ -1,0 +1,25 @@
+:host ::ng-deep {
+  .p-datatable .p-datatable-header {
+    background: transparent;
+    border: none;
+  }
+
+  .p-datatable .p-datatable-thead > tr > th {
+    background: transparent;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td {
+    background: transparent;
+    border: none;
+  }
+
+  .p-paginator {
+    background: transparent;
+    border: none;
+  }
+
+  .p-chart {
+    font-family: inherit;
+  }
+}

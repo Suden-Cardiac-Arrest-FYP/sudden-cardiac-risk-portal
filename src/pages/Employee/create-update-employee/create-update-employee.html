@@ -1,0 +1,1173 @@
+<div class="w-full h-full p-6">
+  <!-- Stepper Header -->
+  <div class="flex items-center justify-center mb-8">
+    <div class="flex items-center space-x-4">
+      <!-- Step 1 -->
+      <div class="flex items-center">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
+          [ngClass]="{
+            'bg-blue-600': currentStep >= 1,
+            'bg-gray-300 dark:bg-gray-600': currentStep < 1
+          }"
+        >
+          1
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Personal Info</span
+        >
+      </div>
+
+      <!-- Connector -->
+      <div
+        class="w-12 h-1 bg-gray-300 dark:bg-gray-600"
+        [ngClass]="{'bg-blue-600': currentStep > 1}"
+      ></div>
+
+      <!-- Step 2 -->
+      <div class="flex items-center">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
+          [ngClass]="{
+            'bg-blue-600': currentStep >= 2,
+            'bg-gray-300 dark:bg-gray-600': currentStep < 2
+          }"
+        >
+          2
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Professional Info</span
+        >
+      </div>
+
+      <!-- Connector -->
+      <div
+        class="w-12 h-1 bg-gray-300 dark:bg-gray-600"
+        [ngClass]="{'bg-blue-600': currentStep > 2}"
+      ></div>
+
+      <!-- Step 3 -->
+      <div class="flex items-center">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
+          [ngClass]="{
+            'bg-blue-600': currentStep >= 3,
+            'bg-gray-300 dark:bg-gray-600': currentStep < 3
+          }"
+        >
+          3
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Bank Details</span>
+      </div>
+
+      <!-- Connector -->
+      <div
+        class="w-12 h-1 bg-gray-300 dark:bg-gray-600"
+        [ngClass]="{'bg-blue-600': currentStep > 3}"
+      ></div>
+
+      <!-- Step 4 -->
+      <div class="flex items-center">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"
+          [ngClass]="{
+            'bg-blue-600': currentStep >= 4,
+            'bg-gray-300 dark:bg-gray-600': currentStep < 4
+          }"
+        >
+          4
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Documents</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <form [formGroup]="employeeForm" class="space-y-6">
+    <!-- Step 1: Personal Information -->
+    <div *ngIf="currentStep === 1" class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+        Personal Information
+      </h3>
+
+      <!-- Profile Image Upload -->
+      <div class="sm:col-span-2">
+        <label
+          class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2"
+        >
+          Profile Image
+        </label>
+        <div class="flex items-center gap-4">
+          <!-- Current Image Preview -->
+          <div
+            class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden"
+          >
+            <img
+              *ngIf="uploadedProfileImageUrl || employeeForm.get('ProfileImage')?.value"
+              [src]="uploadedProfileImageUrl || employeeForm.get('ProfileImage')?.value"
+              alt="Profile"
+              class="w-full h-full object-cover rounded-full"
+            />
+            <span
+              *ngIf="!uploadedProfileImageUrl && !employeeForm.get('ProfileImage')?.value"
+            >
+              {{ (employeeForm.get('FirstName')?.value ||
+              'N')?.charAt(0)?.toUpperCase() }}{{
+              (employeeForm.get('LastName')?.value ||
+              'A')?.charAt(0)?.toUpperCase() }}
+            </span>
+          </div>
+
+          <!-- File Upload -->
+          <p-fileUpload
+            mode="basic"
+            accept="image/*"
+            [maxFileSize]="5000000"
+            (onSelect)="onProfileImageUpload($event)"
+            chooseLabel="Choose Image"
+            class="flex-1"
+            [auto]="false"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+          ></p-fileUpload>
+        </div>
+        <small class="text-surface-500 dark:text-surface-400">Upload a profile image (max 5MB)</small>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Full Name as Per NIC -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="fullName"
+              formControlName="fullName"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="fullName">Full Name as Per NIC *</label>
+          </p-floatlabel>
+          <small
+            *ngIf="employeeForm.get('fullName')?.touched && employeeForm.get('fullName')?.hasError('required')"
+            class="text-red-600 dark:text-red-400 text-xs mt-1 block"
+          >
+            Full Name is required.
+          </small>
+        </div>
+
+        <!-- NIC Number -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="nicNumber"
+              formControlName="nicNumber"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="nicNumber">NIC Number *</label>
+          </p-floatlabel>
+          <small
+            *ngIf="employeeForm.get('nicNumber')?.touched && employeeForm.get('nicNumber')?.hasError('required')"
+            class="text-red-600 dark:text-red-400 text-xs mt-1 block"
+          >
+            NIC Number is required.
+          </small>
+        </div>
+
+        <!-- Preferred Name -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="preferredName"
+              formControlName="preferredName"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="preferredName">Preferred Name</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="email"
+              formControlName="email"
+              autocomplete="off"
+              class="w-full"
+              type="email"
+            />
+            <label for="email">Email *</label>
+          </p-floatlabel>
+          <small
+            *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.hasError('required')"
+            class="text-red-600 dark:text-red-400 text-xs mt-1 block"
+          >
+            Email is required.
+          </small>
+        </div>
+
+        <!-- Phone Number -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="phoneNumber"
+              formControlName="phoneNumber"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="phoneNumber">Phone Number</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- WhatsApp Number -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="whatsappNumber"
+              formControlName="whatsappNumber"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="whatsappNumber">WhatsApp Number</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Date of Birth -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-datepicker
+              formControlName="dateOfBirth"
+              showIcon
+              iconDisplay="input"
+              styleClass="w-full"
+              appendTo="body"
+            />
+            <label for="dateOfBirth">Date of Birth</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Last Name with Initials -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="lastNameWithInitials"
+              formControlName="lastNameWithInitials"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="lastNameWithInitials">Last Name with Initials</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Gender -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="gender"
+              inputId="gender"
+              [options]="genderOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('gender')"
+            />
+            <label for="gender">Select Gender</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Nationality -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="nationality"
+              inputId="nationality"
+              [options]="nationalityOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('nationality')"
+            />
+            <label for="nationality">Select Nationality</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Blood Group -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="bloodGroup"
+              inputId="bloodGroup"
+              [options]="bloodGroupOptions"
+              styleClass="w-full"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('bloodGroup')"
+            />
+            <label for="bloodGroup">Select Blood Group</label>
+          </p-floatlabel>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div>
+        <p-floatlabel class="w-full">
+          <textarea
+            pInputTextarea
+            id="address"
+            formControlName="address"
+            rows="3"
+            class="w-full"
+          ></textarea>
+          <label for="address">Address</label>
+        </p-floatlabel>
+      </div>
+    </div>
+
+    <!-- Step 2: Professional Information -->
+    <div *ngIf="currentStep === 2" class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+        Professional Information
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Basic Salary -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="basicSalary"
+              formControlName="basicSalary"
+              autocomplete="off"
+              class="w-full"
+              type="number"
+            />
+            <label for="basicSalary">Basic Salary</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Username -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="username"
+              formControlName="username"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="username">Username</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- EPF Number -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="epfNumber"
+              formControlName="epfNumber"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="epfNumber">EPF Number</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Location -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="location"
+              formControlName="location"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="location">Location</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Employee Type -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="employeeType"
+              inputId="employeeType"
+              [options]="employeeTypeOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('employeeType')"
+            />
+            <label for="employeeType">Select Employee Type</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Official Email -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="officialEmail"
+              formControlName="officialEmail"
+              autocomplete="off"
+              class="w-full"
+              type="email"
+            />
+            <label for="officialEmail">Official Email</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Department -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="departmentId"
+              inputId="departmentId"
+              [options]="departmentOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('departmentId')"
+            />
+            <label for="departmentId">Select Department</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Designation -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="designationId"
+              inputId="designationId"
+              [options]="designationOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('designationId')"
+            />
+            <label for="designationId">Select Designation</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Annual Entitlement -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="annualEntitlement"
+              inputId="annualEntitlement"
+              [options]="annualEntitlementOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('annualEntitlement')"
+            />
+            <label for="annualEntitlement">Select Annual Entitlement</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Budget Relief Act -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="budgetReliefAct"
+              inputId="budgetReliefAct"
+              [options]="budgetReliefActOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('budgetReliefAct')"
+            />
+            <label for="budgetReliefAct"
+              >Select Budget Relief Act Options</label
+            >
+          </p-floatlabel>
+        </div>
+
+        <!-- Is Active -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="isActive"
+              inputId="isActive"
+              [options]="isActiveOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('isActive')"
+            />
+            <label for="isActive">Select Status</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Resign Status (Only show in update mode) -->
+        <div *ngIf="employee.EmployeeId">
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="resignStatus"
+              inputId="resignStatus"
+              [options]="resignOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('resignStatus')"
+            />
+            <label for="resignStatus">Select Resign Status</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Joining Date -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-datepicker
+              formControlName="joiningDate"
+              showIcon
+              iconDisplay="input"
+              styleClass="w-full"
+              appendTo="body"
+            />
+            <label for="joiningDate">Joining Date</label>
+          </p-floatlabel>
+        </div>
+      
+        <!-- Shift Type -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="shiftType"
+              inputId="shiftType"
+              [options]="shiftOptions"
+              styleClass="w-full"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('shiftType')"
+            />
+            <label for="shiftType">Select Shift Type</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Bank Details -->
+    <div *ngIf="currentStep === 3" class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Bank Details</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Account Holder Name -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="accountHolderName"
+              formControlName="accountHolderName"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="accountHolderName">Account Holder Name</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Bank Name -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="bankName"
+              formControlName="bankName"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="bankName">Bank Name</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Branch Name -->
+        <div>
+          <p-floatlabel class="w-full">
+            <input
+              pInputText
+              id="branchName"
+              formControlName="branchName"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label for="branchName">Branch Name</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- Account Type -->
+        <div>
+          <p-floatlabel class="w-full">
+            <p-select
+              formControlName="accountType"
+              inputId="accountType"
+              [options]="accountTypeOptions"
+              styleClass="w-full"
+              optionLabel="label"
+              optionValue="value"
+              [class]="getFilledClass('accountType')"
+            />
+            <label for="accountType">Select Account Type</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Documents -->
+    <div *ngIf="currentStep === 4" class="space-y-6">
+      <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Documents</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Application Letter -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Application Letter</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('applicationLetter')"
+                [disabled]="uploadingFiles['applicationLetter']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB)
+              </span>
+            </div>
+            <input
+              #applicationLetterInput
+              type="file"
+              (change)="onFileSelect($event, 'applicationLetter')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              class="hidden"
+            />
+
+            <!-- Show current file if exists -->
+            <div
+              *ngIf="uploadedFiles['applicationLetter']"
+              class="mt-2 p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+            >
+              <div class="relative inline-block">
+                <ng-container
+                  *ngIf="isImage(uploadedFiles['applicationLetter'].url); else notImage"
+                >
+                  <img
+                    [src]="uploadedFiles['applicationLetter'].url"
+                    class="max-h-[150px] rounded border border-gray-200 dark:border-gray-600"
+                    style="width: auto; display: block"
+                  />
+                </ng-container>
+                <ng-template #notImage>
+                  <p-button
+                    icon="pi pi-file"
+                    [label]="uploadedFiles['applicationLetter'].name"
+                    (click)="showFilesDialog(uploadedFiles['applicationLetter'].url)"
+                    severity="secondary"
+                    size="small"
+                  />
+                </ng-template>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                  (click)="removeFile('applicationLetter')"
+                  [disabled]="uploadingFiles['applicationLetter']"
+                  pTooltip="Remove file"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                {{ uploadedFiles['applicationLetter'].name }}
+              </p>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['applicationLetter']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirmation Letter -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Confirmation Letter</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('confirmationLetter')"
+                [disabled]="uploadingFiles['confirmationLetter']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB)
+              </span>
+            </div>
+            <input
+              #confirmationLetterInput
+              type="file"
+              (change)="onFileSelect($event, 'confirmationLetter')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              class="hidden"
+            />
+
+            <!-- Show current file if exists -->
+            <div
+              *ngIf="uploadedFiles['confirmationLetter']"
+              class="mt-2 p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+            >
+              <div class="relative inline-block">
+                <ng-container
+                  *ngIf="isImage(uploadedFiles['confirmationLetter'].url); else notImage"
+                >
+                  <img
+                    [src]="uploadedFiles['confirmationLetter'].url"
+                    class="max-h-[150px] rounded border border-gray-200 dark:border-gray-600"
+                    style="width: auto; display: block"
+                  />
+                </ng-container>
+                <ng-template #notImage>
+                  <p-button
+                    icon="pi pi-file"
+                    [label]="uploadedFiles['confirmationLetter'].name"
+                    (click)="showFilesDialog(uploadedFiles['confirmationLetter'].url)"
+                    severity="secondary"
+                    size="small"
+                  />
+                </ng-template>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                  (click)="removeFile('confirmationLetter')"
+                  [disabled]="uploadingFiles['confirmationLetter']"
+                  pTooltip="Remove file"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                {{ uploadedFiles['confirmationLetter'].name }}
+              </p>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['confirmationLetter']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Basic Documents (Multiple) -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Basic Documents (Birth Certificate, NIC)</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('basicDocuments')"
+                [disabled]="uploadingFiles['basicDocuments']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB per file)
+              </span>
+            </div>
+            <input
+              #basicDocumentsInput
+              type="file"
+              (change)="onMultipleFileSelect($event, 'basicDocuments')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              multiple
+              class="hidden"
+            />
+
+            <!-- Show uploaded files -->
+            <div
+              *ngIf="multipleUploadedFiles['basicDocuments'] && multipleUploadedFiles['basicDocuments'].length > 0"
+              class="mt-2 space-y-2"
+            >
+              <div
+                *ngFor="let file of multipleUploadedFiles['basicDocuments']; let i = index"
+                class="p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+              >
+                <div class="relative inline-block">
+                  <ng-container *ngIf="isImage(file.url); else notImage">
+                    <img
+                      [src]="file.url"
+                      class="max-h-[100px] rounded border border-gray-200 dark:border-gray-600"
+                      style="width: auto; display: block"
+                    />
+                  </ng-container>
+                  <ng-template #notImage>
+                    <p-button
+                      icon="pi pi-file"
+                      [label]="file.name"
+                      (click)="showFilesDialog(file.url)"
+                      severity="secondary"
+                      size="small"
+                    />
+                  </ng-template>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-times"
+                    class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                    (click)="removeMultipleFile('basicDocuments', i)"
+                    [disabled]="uploadingFiles['basicDocuments']"
+                    pTooltip="Remove file"
+                    tooltipPosition="top"
+                  ></button>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                  {{ file.name }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['basicDocuments']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Educational Documents (Multiple) -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Educational Documents (O/L, A/L Results)</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('educationalDocuments')"
+                [disabled]="uploadingFiles['educationalDocuments']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB per file)
+              </span>
+            </div>
+            <input
+              #educationalDocumentsInput
+              type="file"
+              (change)="onMultipleFileSelect($event, 'educationalDocuments')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              multiple
+              class="hidden"
+            />
+
+            <!-- Show uploaded files -->
+            <div
+              *ngIf="multipleUploadedFiles['educationalDocuments'] && multipleUploadedFiles['educationalDocuments'].length > 0"
+              class="mt-2 space-y-2"
+            >
+              <div
+                *ngFor="let file of multipleUploadedFiles['educationalDocuments']; let i = index"
+                class="p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+              >
+                <div class="relative inline-block">
+                  <ng-container *ngIf="isImage(file.url); else notImage">
+                    <img
+                      [src]="file.url"
+                      class="max-h-[100px] rounded border border-gray-200 dark:border-gray-600"
+                      style="width: auto; display: block"
+                    />
+                  </ng-container>
+                  <ng-template #notImage>
+                    <p-button
+                      icon="pi pi-file"
+                      [label]="file.name"
+                      (click)="showFilesDialog(file.url)"
+                      severity="secondary"
+                      size="small"
+                    />
+                  </ng-template>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-times"
+                    class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                    (click)="removeMultipleFile('educationalDocuments', i)"
+                    [disabled]="uploadingFiles['educationalDocuments']"
+                    pTooltip="Remove file"
+                    tooltipPosition="top"
+                  ></button>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                  {{ file.name }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['educationalDocuments']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificates (Multiple) -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Certificates</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('certificates')"
+                [disabled]="uploadingFiles['certificates']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB per file)
+              </span>
+            </div>
+            <input
+              #certificatesInput
+              type="file"
+              (change)="onMultipleFileSelect($event, 'certificates')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              multiple
+              class="hidden"
+            />
+
+            <!-- Show uploaded files -->
+            <div
+              *ngIf="multipleUploadedFiles['certificates'] && multipleUploadedFiles['certificates'].length > 0"
+              class="mt-2 space-y-2"
+            >
+              <div
+                *ngFor="let file of multipleUploadedFiles['certificates']; let i = index"
+                class="p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+              >
+                <div class="relative inline-block">
+                  <ng-container *ngIf="isImage(file.url); else notImage">
+                    <img
+                      [src]="file.url"
+                      class="max-h-[100px] rounded border border-gray-200 dark:border-gray-600"
+                      style="width: auto; display: block"
+                    />
+                  </ng-container>
+                  <ng-template #notImage>
+                    <p-button
+                      icon="pi pi-file"
+                      [label]="file.name"
+                      (click)="showFilesDialog(file.url)"
+                      severity="secondary"
+                      size="small"
+                    />
+                  </ng-template>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-times"
+                    class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                    (click)="removeMultipleFile('certificates', i)"
+                    [disabled]="uploadingFiles['certificates']"
+                    pTooltip="Remove file"
+                    tooltipPosition="top"
+                  ></button>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                  {{ file.name }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['certificates']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointment Letter -->
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <label class="block font-medium mb-3 text-gray-700 dark:text-gray-300"
+            >Upload Appointment Letter</label
+          >
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-2">
+              <button
+                pButton
+                type="button"
+                label="Browse"
+                icon="pi pi-upload"
+                class="p-button-outlined p-button-secondary"
+                (click)="triggerFileInput('appointmentLetter')"
+                [disabled]="uploadingFiles['appointmentLetter']"
+              ></button>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG, PDF (Max: 10MB)
+              </span>
+            </div>
+            <input
+              #appointmentLetterInput
+              type="file"
+              (change)="onFileSelect($event, 'appointmentLetter')"
+              accept=".jpg,.png,.gif,.jpeg,.pdf,.doc,.docx"
+              class="hidden"
+            />
+
+            <!-- Show current file if exists -->
+            <div
+              *ngIf="uploadedFiles['appointmentLetter']"
+              class="mt-2 p-2 bg-white dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+            >
+              <div class="relative inline-block">
+                <ng-container
+                  *ngIf="isImage(uploadedFiles['appointmentLetter'].url); else notImage"
+                >
+                  <img
+                    [src]="uploadedFiles['appointmentLetter'].url"
+                    class="max-h-[150px] rounded border border-gray-200 dark:border-gray-600"
+                    style="width: auto; display: block"
+                  />
+                </ng-container>
+                <ng-template #notImage>
+                  <p-button
+                    icon="pi pi-file"
+                    [label]="uploadedFiles['appointmentLetter'].name"
+                    (click)="showFilesDialog(uploadedFiles['appointmentLetter'].url)"
+                    severity="secondary"
+                    size="small"
+                  />
+                </ng-template>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-rounded p-button-danger p-button-sm absolute -top-2 -right-2"
+                  (click)="removeFile('appointmentLetter')"
+                  [disabled]="uploadingFiles['appointmentLetter']"
+                  pTooltip="Remove file"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                {{ uploadedFiles['appointmentLetter'].name }}
+              </p>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div
+              *ngIf="uploadingFiles['appointmentLetter']"
+              class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 rounded"
+            >
+              <div class="flex items-center gap-2">
+                <i class="pi pi-spinner pi-spin text-blue-600 dark:text-blue-400"></i>
+                <span class="text-sm text-blue-600 dark:text-blue-400">Uploading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Navigation Buttons -->
+  <div class="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <div>
+      <p-button
+        *ngIf="currentStep > 1"
+        label="Previous"
+        icon="pi pi-chevron-left"
+        outlined="true"
+        class="w-full sm:w-auto"
+        (click)="previousStep()"
+      ></p-button>
+    </div>
+
+    <div class="flex gap-3">
+      <p-button
+        label="Close"
+        icon="pi pi-times"
+        outlined="true"
+        severity="secondary"
+        class="w-full sm:w-auto"
+        (click)="closeDialog()"
+      ></p-button>
+
+      <p-button
+        *ngIf="currentStep < 4"
+        label="Next"
+        icon="pi pi-chevron-right"
+        iconPos="right"
+        class="w-full sm:w-auto"
+        (click)="nextStep()"
+      ></p-button>
+
+      <p-button
+        *ngIf="currentStep === 4"
+        label="Save Employee"
+        icon="pi pi-save"
+        [loading]="isLoading"
+        class="w-full sm:w-auto"
+        (click)="save()"
+      ></p-button>
+    </div>
+  </div>
+</div>

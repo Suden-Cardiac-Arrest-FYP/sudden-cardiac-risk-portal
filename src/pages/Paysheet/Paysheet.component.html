@@ -1,0 +1,296 @@
+<p-toast />
+<p-confirmdialog #cd>
+  <ng-template
+    #headless
+    let-message
+    let-onAccept="onAccept"
+    let-onReject="onReject"
+  >
+    <div
+      class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded"
+    >
+      <span class="font-bold text-2xl block mb-2 mt-6">{{
+        message.header
+      }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button
+          label="Cancel"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="w-32"
+        ></p-button>
+        <p-button
+          label="Delete"
+          (onClick)="onAccept()"
+          styleClass="w-32"
+          severity="danger"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
+<div class="container mx-auto px-4">
+  <!-- Header Section -->
+  <div
+    class="flex flex-col xl:flex-row items-center xl:items-start gap-2 justify-between"
+  >
+    <div>
+      <div class="text-2xl leading-8 text-color font-medium">Paysheet</div>
+    </div>
+  </div>
+
+  <!-- Search and Action Buttons Section -->
+  <div
+    class="mt-10 mb-4 flex flex-col xl:flex-row items-center justify-between space-y-4 xl:space-y-0 xl:space-x-4"
+  >
+    <p-iconfield class="w-full sm:w-auto">
+      <p-inputicon class="pi pi-search"> </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        (input)="onGlobalFilter($event)"
+        placeholder="Search Paysheet"
+        class="w-full sm:w-auto p-inputtext"
+      />
+    </p-iconfield>
+
+    <div
+      class="flex flex-wrap items-center gap-3 justify-center sm:justify-end w-full sm:w-auto"
+    >
+      <ng-container *ngIf="!isDataLoading">
+        <p-button
+          icon="pi pi-refresh"
+          outlined
+          severity="secondary"
+          (click)="reloadState()"
+          class="m-1"
+        />
+        <p-button
+          label="{{ currentPage }} of {{ totalPages }}"
+          outlined
+          severity="secondary"
+          class="m-1"
+        />
+        <p-button
+          icon="pi pi-chevron-left"
+          outlined
+          severity="secondary"
+          (click)="prev()"
+          [disabled]="isFirstPage()"
+          class="m-1"
+        />
+        <p-button
+          icon="pi pi-chevron-right"
+          outlined
+          severity="secondary"
+          (click)="next()"
+          [disabled]="isLastPage()"
+          class="m-1"
+        />
+      </ng-container>
+      <ng-container *ngIf="hasAccess('DTO5535', 'CREATE') && dtoName">
+        <p-divider layout="vertical" class="hidden sm:block m-0 p-0" />
+        <p-button
+          icon="pi pi-plus"
+          label="Create Paysheet"
+          outlined
+          [loading]="isDataLoading1"
+          (click)="showCreatePayrollDialog()"
+          severity="secondary"
+          class="m-1"
+        />
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div
+    *ngIf="isDataLoading"
+    class="p-4 text-center flex justify-center items-center py-20"
+  >
+    <div class="inline-flex items-center space-x-2 text-surface-500">
+      <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <span class="text-sm">Loading Paysheet...</span>
+    </div>
+  </div>
+
+  <!-- No Data State -->
+  <div
+    *ngIf="!isDataLoading && PaysheetData.length === 0"
+    class="flex flex-col items-center justify-center py-20"
+  >
+    <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
+      <i class="pi pi-credit-card" style="font-size: 3rem"></i>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+      No Paysheet Found
+    </h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
+      {{
+        searchQuery
+          ? "No Paysheet match your search criteria. Try adjusting your search terms."
+          : "Create your first Paysheet to get started."
+      }}
+    </p>
+    <p-button
+      *ngIf="hasAccess('DTO5535', 'CREATE') && dtoName!; searchQuery"
+      icon="pi pi-plus"
+      label="Create Your First Paysheet"
+      (click)="showCreatePayrollDialog()"
+      severity="secondary"
+    />
+  </div>
+
+  <div
+    class="w-full h-full overflow-y-auto scrollbar-hide"
+    *ngIf="!isDataLoading && PaysheetData.length > 0"
+  >
+    <p-table
+      #table
+      #dt
+      [value]="PaysheetData"
+      [(selection)]="selectedRows"
+      dataKey="id"
+      [rows]="rows"
+      [paginator]="false"
+      [first]="first"
+      [globalFilterFields]="['Salary', 'Designation', 'Department', 'JoinDate']"
+      scrollHeight="calc(100vh - 200px)"
+      class="w-full min-w-[1000px]"
+      [loading]="isDataLoading"
+    >
+      PaySheetId?: string; Month?: string; Year?: string; Date?: string;
+      TotalSalaries?: number; CostToTheCompany?: number;
+      <!-- Table Header Template -->
+      <ng-template #header>
+        <tr>
+          <th style="width: 1rem">
+            <p-tableHeaderCheckbox />
+          </th>
+          <th style="width: 1rem">PaysheetId</th>
+          <th style="width: 1rem">Year</th>
+          <th style="width: 1rem">Month</th>
+          <th style="width: 1rem">Status</th>
+          <th style="width: 1rem">TotalSalaries</th>
+          <th style="width: 1rem">Created Date</th>
+
+          <th style="width: 1rem">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body Template -->
+      <ng-template #body let-PaysheetData>
+        <tr>
+          <td style="width: 1rem">
+            <p-tableCheckbox [value]="PaysheetData" />
+          </td>
+
+          <td>
+            <div class="leading-6 text-color">
+              {{ PaysheetData.PaySheetId }}
+            </div>
+          </td>
+
+          <td>
+            <div class="leading-6 text-color">
+              {{ formatYear(PaysheetData.Date) }}
+            </div>
+          </td>
+          <td>
+            <div class="leading-6 text-color">
+              {{ formatMonth(PaysheetData.Date) }}
+            </div>
+          </td>
+
+          <td>
+            <span
+              [ngClass]="{
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300':
+                  PaysheetData.IsGenerated,
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300':
+                  !PaysheetData.IsGenerated
+              }"
+              class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit"
+            >
+              <i
+                [class]="
+                  PaysheetData.IsGenerated
+                    ? 'pi pi-check-circle'
+                    : 'pi pi-times-circle'
+                "
+                class="text-xs"
+              ></i>
+              {{ PaysheetData.IsGenerated ? "Generated" : "Pending" }}
+            </span>
+          </td>
+
+          <td>
+            <div class="leading-6 text-color">
+              {{ PaysheetData.TotalSalaries }}
+            </div>
+          </td>
+
+          <td>
+            <div class="leading-6 text-color">
+              {{ PaysheetData.Date | date : "dd/MM/yyyy" }}
+            </div>
+          </td>
+
+          <td>
+            <div class="flex justify-left w-full">
+              <div class="flex gap-2">
+                <p-button
+                  *ngIf="hasAccess('DTO5535', 'UPDATE')"
+                  icon="pi pi-wallet"
+                  (click)="viewDialog(PaysheetData)"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  pTooltip="Payslips"
+                  tooltipPosition="top"
+                ></p-button>
+
+                <p-button
+                  *ngIf="hasAccess('DTO5535', 'UPDATE')"
+                  icon="pi pi-pencil"
+                  (click)="showEditPayrollDialog(PaysheetData)"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  pTooltip="Edit"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
+                  *ngIf="hasAccess('DTO5535', 'DELETE')"
+                  icon="pi pi-trash"
+                  (click)="deletePayroll(PaysheetData)"
+                  severity="danger"
+                  size="small"
+                  [rounded]="true"
+                  variant="outlined"
+                  pTooltip="Delete"
+                  tooltipPosition="top"
+                ></p-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

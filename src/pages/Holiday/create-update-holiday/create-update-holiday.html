@@ -1,0 +1,106 @@
+<form [formGroup]="holidayForm" class="card grid grid-cols-1 gap-4 mt-4">
+  <div class="sm:col-span-2">
+    <p-floatlabel class="w-full mt-3">
+      <input
+        pInputText
+        id="HolidayName"
+        formControlName="HolidayName"
+        autocomplete="off"
+        class="w-full"
+      />
+      <label for="HolidayName">Holiday Name</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        holidayForm.get('HolidayName')?.touched && holidayForm.get('HolidayName')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+      Holiday Name is required.
+    </small>
+  </div>
+
+  <div class="sm:col-span-2">
+    <p-floatlabel class="w-full mt-3">
+      <p-multiSelect
+        id="Category"
+        formControlName="Category"
+        [options]="categoryOptions"
+        optionLabel="label"
+        class="w-full"
+        appendTo="body"
+      ></p-multiSelect>
+      <label for="Category">Category</label>
+    </p-floatlabel>
+
+    <small
+      *ngIf="
+        holidayForm.get('Category')?.touched && holidayForm.get('Category')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+    Category is required.
+    </small>
+  </div>
+
+  <div class="sm:col-span-2">
+    <p-floatlabel class="w-full mt-3">
+      <p-datepicker
+        formControlName="Date"
+        showIcon
+        iconDisplay="input"
+        styleClass="w-full"
+        appendTo="body"
+      />
+      <label for="Date">Date</label>
+    </p-floatlabel>
+
+        <small
+      *ngIf="
+        holidayForm.get('Date')?.touched && holidayForm.get('Date')?.hasError('required')
+      "
+      class="text-red-600"
+    >
+    Date is required.
+    </small>
+
+  </div>
+
+  <div class="sm:col-span-2">
+    <p-floatlabel class="w-full mt-3">
+      <textarea
+        pTextarea
+        id="Description"
+        formControlName="Description"
+        rows="4"
+        cols="30"
+        autocomplete="off"
+        class="w-full"
+      ></textarea>
+      <label for="Description">Description</label>
+    </p-floatlabel>
+  </div>
+</form>
+
+<!-- Save and Close Buttons -->
+<div class="flex justify-evenly sm:justify-end sm:gap-4 mt-10">
+  <div>
+    <p-button
+      label="Close"
+      icon="pi pi-times"
+      outlined="true"
+      class="w-full sm:w-auto"
+      (click)="CloseInstances($event)"
+    ></p-button>
+  </div>
+  <div>
+    <p-button
+      label="Save"
+      icon="pi pi-save"
+      [loading]="isLoading"
+      class="w-full sm:w-auto"
+      (click)="save()"
+    ></p-button>
+  </div>
+</div>
