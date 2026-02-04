@@ -1,8 +1,4 @@
-import {
-  APP_INITIALIZER,
-  ApplicationConfig,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
@@ -15,7 +11,8 @@ import { environment } from '../environments/environment';
 import { AppInitializerService } from './app-initializer.service';
 import { RoleService } from '../services/Role.service';
 import { RoleConfigService } from '../services/role-config.service';
-import { authH0ttpInterceptor } from './auth0.service';
+import { authH0ttpInterceptor } from './auth0..service';
+
 
 export function initializeApp(appInitializer: AppInitializerService, roleConfigService: RoleConfigService) {
   return () => {
@@ -33,9 +30,10 @@ export function initializeApp(appInitializer: AppInitializerService, roleConfigS
   };
 }
 
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes, withHashLocation()),
     provideAuth0(environment.auth0),
     provideAnimationsAsync(),
@@ -46,10 +44,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
-      deps: [AppInitializerService],
+      deps: [AppInitializerService, RoleConfigService],
       multi: true,
     },
     providePrimeNG({ theme: Noir, inputStyle: 'outlined' }),
     provideHttpClient(withInterceptors([authH0ttpInterceptor]))
-  ],
+]
 };

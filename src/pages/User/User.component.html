@@ -89,7 +89,7 @@
           class="m-1"
         />
       </ng-container>
-      <ng-container *ngIf="hasAccess('DTO5520', 'CREATE') && dtoName">
+      <ng-container *ngIf="hasAccess('DTO5212', 'CREATE') && dtoName">
         <p-divider layout="vertical" class="hidden sm:block m-0 p-0" />
         <p-button
           icon="pi pi-plus"
@@ -103,70 +103,15 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div
-    *ngIf="isDataLoading"
-    class="p-4 text-center flex justify-center items-center py-20"
-  >
-    <div class="inline-flex items-center space-x-2 text-surface-500">
-      <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        ></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-      <span class="text-sm">Loading Users...</span>
-    </div>
-  </div>
-
-  <!-- No Data State -->
-  <div
-    *ngIf="!isDataLoading && UserData.length === 0"
-    class="flex flex-col items-center justify-center py-20"
-  >
-    <div class="text-6xl text-gray-300 dark:text-gray-600 mb-1">
-      <i class="pi pi-users" style="font-size: 3rem"></i>
-    </div>
-    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">
-      No Users Found
-    </h3>
-    <p class="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-md">
-      {{
-        searchQuery
-          ? "No Users match your search criteria. Try adjusting your search terms."
-          : "Create your first Users to get started."
-      }}
-    </p>
-    <p-button
-      *ngIf="hasAccess('DTO5520', 'CREATE') && dtoName!; searchQuery"
-      icon="pi pi-plus"
-      label="Create Your First Users"
-      (click)="showCreateUserDialog()"
-      severity="secondary"
-    />
-  </div>
-
-  <div
-    class="w-full h-full overflow-y-auto scrollbar-hide"
-    *ngIf="!isDataLoading && UserData.length > 0"
-  >
+  <div class="w-full h-full overflow-y-auto scrollbar-hide">
     <p-table
       #table
       #dt
       [value]="UserData"
       [(selection)]="selectedRows"
       dataKey="id"
-      [rows]="rows"
-      [paginator]="false"
+      [rows]="10"
+      [paginator]="true"
       [first]="first"
       [globalFilterFields]="['FirstName', 'LastName', 'Email', 'RoleName']"
       scrollHeight="calc(100vh - 200px)"
@@ -212,7 +157,7 @@
             <div class="flex justify-end w-full">
               <div class="flex gap-2">
                 <p-button
-                  *ngIf="hasAccess('DTO5520', 'UPDATE')"
+                  *ngIf="hasAccess('DTO5212', 'UPDATE')"
                   icon="pi pi-pencil"
                   (click)="showEditUserDialog(UserData)"
                   size="small"
@@ -222,7 +167,7 @@
                   tooltipPosition="top"
                 ></p-button>
                 <p-button
-                  *ngIf="hasAccess('DTO5520', 'DELETE')"
+                  *ngIf="hasAccess('DTO5212', 'DELETE')"
                   icon="pi pi-trash"
                   (click)="deleteUser(UserData)"
                   severity="danger"

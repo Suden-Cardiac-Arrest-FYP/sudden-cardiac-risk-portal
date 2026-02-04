@@ -1,13 +1,17 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import {
+    HttpClient,
+    HttpHeaders,
+    HttpResponse,
+} from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { RoleConfig } from '../app/access-control/roleConfig';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RoleConfigService {
-  private http = inject(HttpClient);
+   constructor(private http: HttpClient) {}
   private roleConfigSubject = new BehaviorSubject<RoleConfig>({});
   roleConfig$ = this.roleConfigSubject.asObservable();
 
@@ -15,13 +19,15 @@ export class RoleConfigService {
     this.roleConfigSubject.next(config);
   }
 
+  
+
   getRoleConfig() {
     return this.roleConfigSubject.value;
   }
-  SendFirstLoginEmail(req: any): Observable<HttpResponse<any>> {
-    return this.http.post<any>(
-      `https://manifest.cgaas.ai/CGaaS-Manifest/api/Send/first/login/email`,
-      req,
-    );
-  }
+     SendFirstLoginEmail(req: any): Observable<HttpResponse<any>> {
+        return this.http.post<any>(
+            `#`,
+            req
+        );
+    }
 }

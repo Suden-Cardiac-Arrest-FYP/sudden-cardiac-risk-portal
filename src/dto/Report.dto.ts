@@ -3,22 +3,14 @@ export interface IReport {
   Title?: string;
   Description?: string;
   Author?: string;
-  Category?: string;
-  CreatedDate?: string;
 }
+
 
 export class ReportDto implements IReport {
   constructor(
     public ReportId?: string,
     public Title?: string,
     public Description?: string,
-    public Author?: string,
-    public Category?: string,
-    public CreatedDate?: string,
+    public Author?: string
   ) {}
-}
-
-export interface ReportResponse {
-  Count: number;
-  Report: IReport[];
 }

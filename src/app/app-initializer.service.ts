@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { RoleService } from '../services/Role.service';
 import { RoleConfigService } from '../services/role-config.service';
 import { HttpResponse } from '@angular/common/http';
-import { IRole, RoleResponse, transformRolesToRoleConfig } from '../dto/Role.dto';
+import { IRole, transformRolesToRoleConfig } from '../dto/Role.dto';
 import { map, filter, switchMap, catchError } from 'rxjs/operators';
 import { Observable, of, from } from 'rxjs';
 import { roleConfig } from '../app/access-control/roleConfig';
@@ -17,7 +17,7 @@ export class AppInitializerService {
   constructor(
     private roleService: RoleService,
     private roleConfigService: RoleConfigService
-  ) { }
+  ) {}
 
   /**
    * Initialize roles and update the role configuration.
@@ -48,19 +48,18 @@ export class AppInitializerService {
    */
   private fetchAndProcessRoles(): Observable<void> {
     return this.roleService.findAllRole({}).pipe(
-      filter((res: HttpResponse<RoleResponse>) => res.ok),
-      map((res: HttpResponse<RoleResponse>) => res.body || { Count: 0, Role: [] }),
-      map((roleResponse: RoleResponse) => {
-        const transformedConfig = transformRolesToRoleConfig(roleResponse.Role);
+      filter((res: HttpResponse<IRole[]>) => res.ok),
+      map((res: HttpResponse<IRole[]>) => res.body || []),
+      map((roles: IRole[]) => {
+        const transformedConfig = transformRolesToRoleConfig(roles);
         Object.assign(roleConfig, transformedConfig);
         this.roleConfigService.setRoleConfig(roleConfig);
       }),
-      map(() => undefined),
+      map(() => undefined), 
       catchError(error => {
         console.error('Error fetching roles:', error);
         return of(undefined);
       })
     );
   }
-
 }  

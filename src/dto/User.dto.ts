@@ -14,11 +14,6 @@ export class UserDto implements IUser {
     public LastName?: string,
     public Email?: string,
     public RoleId?: string,
-    public RoleName?: string,
+    public RoleName?: string
   ) {}
-}
-
-export interface UserResponse {
-  Count: number;
-  User: IUser[];
 }

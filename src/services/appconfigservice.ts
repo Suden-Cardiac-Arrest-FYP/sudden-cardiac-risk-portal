@@ -1,115 +1,110 @@
 import { AppState } from '../domain/appstate';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  computed,
-  effect,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  signal,
-} from '@angular/core';
+import { computed, effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root'
 })
 export class AppConfigService {
-  private defaultSize = 14;
 
-  private fontSize = new BehaviorSubject<number>(this.defaultSize);
+    private defaultSize = 13;
 
-  fontSize$ = this.fontSize.asObservable();
+    private fontSize = new BehaviorSubject<number>(this.defaultSize);
 
-  private sideBarVisibility = new BehaviorSubject<boolean>(true);
-  sideBarVisibility$ = this.sideBarVisibility.asObservable();
+    fontSize$ = this.fontSize.asObservable();
 
-  state: AppState = {
-    configActive: false,
-    menuActive: false,
-    newsActive: false,
-  };
+    private sideBarVisibility = new BehaviorSubject<boolean>(true);
+    sideBarVisibility$ = this.sideBarVisibility.asObservable();
 
-  appState = signal<any>({
-    preset: 'Aura',
-    primary: 'amber',
-    surface: 'slate',
-    darkTheme: true,
-  });
+    state: AppState = {
+        configActive: false,
+        menuActive: false,
+        newsActive: false
+    };
 
-  document = inject(DOCUMENT);
-
-  platformId = inject(PLATFORM_ID);
-
-  theme = computed(() => (this.appState().darkTheme ? 'dark' : 'light'));
-
-  constructor() {
-    effect(() => {
-      const state = this.appState();
-
-      if (isPlatformBrowser(this.platformId)) {
-        if (state.darkTheme) {
-          this.document.documentElement.classList.add('p-dark');
-        } else {
-          this.document.documentElement.classList.remove('p-dark');
-        }
-      }
+    appState = signal<any>({
+        preset: 'Aura',
+        primary: 'amber',
+        surface: 'slate',
+        darkTheme: false,
     });
-  }
 
-  setFontSize(size: number) {
-    this.fontSize.next(size);
-    document.documentElement.style.fontSize = `${size}px`;
-  }
+    document = inject(DOCUMENT);
 
-  showMenu() {
-    this.state.menuActive = true;
-  }
+    platformId = inject(PLATFORM_ID);
 
-  hideMenu() {
-    this.state.menuActive = false;
-  }
+    theme = computed(() => (this.appState().darkTheme ? 'dark' : 'light'));
 
-  showConfig() {
-    this.state.configActive = true;
-  }
 
-  hideConfig() {
-    this.state.configActive = false;
-  }
+    constructor() {
+        effect(() => {
+            const state = this.appState();
 
-  showNews() {
-    this.state.newsActive = true;
-  }
+            if (isPlatformBrowser(this.platformId)) {
+                if (state.darkTheme) {
+                    this.document.documentElement.classList.add('p-dark');
+                } else {
+                    this.document.documentElement.classList.remove('p-dark');
+                }
+            }
+        });
+    }
 
-  hideNews() {
-    this.state.newsActive = false;
-  }
+    setFontSize(size: number) {
+        this.fontSize.next(size);
+        document.documentElement.style.fontSize = `${size}px`;
+      }
+    
+    showSidebar() {
+        this.sideBarVisibility.next(true);
+    }
 
-  showSidebar() {
-    this.sideBarVisibility.next(true);
-  }
+    hideSidebar() {
+        this.sideBarVisibility.next(false);
+    } 
+    
+    toggleSidebar() {
+        this.sideBarVisibility.next(!this.sideBarVisibility.value);
+    }
 
-  hideSidebar() {
-    this.sideBarVisibility.next(false);
-  }
+    showMenu() {
+        this.state.menuActive = true;
+    }
 
-  toggleSidebar() {
-    this.sideBarVisibility.next(!this.sideBarVisibility.value);
-  }
+    hideMenu() {
+        this.state.menuActive = false;
+    }
 
-  getFontSize(): number {
-    return this.fontSize.value;
-  }
+    showConfig() {
+        this.state.configActive = true;
+    }
 
-  increaseFontSize(step: number = 1) {
-    this.setFontSize(this.fontSize.value + step);
-  }
+    hideConfig() {
+        this.state.configActive = false;
+    }
 
-  decreaseFontSize(step: number = 1) {
-    this.setFontSize(this.fontSize.value - step);
-  }
+    showNews() {
+        this.state.newsActive = true;
+    }
 
-  resetFontSize() {
-    this.setFontSize(this.defaultSize);
-  }
+    hideNews() {
+        this.state.newsActive = false;
+    }
+
+    getFontSize(): number {
+        return this.fontSize.value;
+    }
+
+    increaseFontSize(step: number = 1) {
+        this.setFontSize(this.fontSize.value + step);
+    }
+
+    decreaseFontSize(step: number = 1) {
+        this.setFontSize(this.fontSize.value - step);
+    }
+
+    resetFontSize() {
+        this.setFontSize(this.defaultSize);
+    }
 }

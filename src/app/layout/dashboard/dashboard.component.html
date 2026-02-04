@@ -1,10 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SCA Risk Prevention Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <title>Sudden Cardiac Arrest - Risk Assessment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
       * {
         margin: 0;
@@ -13,719 +18,660 @@
       }
 
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        color: #1a202c;
+        font-family:
+          "Segoe UI",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: #f5f5f5;
+        color: #2d3748;
         line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
       }
 
-      .dashboard-container {
+      .container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0;
+        padding: 60px 40px;
       }
 
+      /* Header */
       .header {
-        text-align: center;
-        margin-bottom: 0;
-        background: white;
-        padding: 40px;
-        border-radius: 0;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        margin-bottom: 50px;
       }
 
       .header h1 {
         font-size: 3rem;
-        font-weight: 800;
-        background: linear-gradient(
-          135deg,
-          #4f46e5 0%,
-          #7c3aed 50%,
-          #ec4899 100%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 16px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
       }
 
       .header p {
-        font-size: 1.2rem;
-        color: #64748b;
-        max-width: 800px;
-        margin: 0 auto;
+        font-size: 1.15rem;
+        color: #718096;
+        font-weight: 400;
       }
 
-      .about-sca-section {
-        background: white;
-        padding: 40px;
-        border-radius: 0;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        margin-bottom: 0;
-      }
-
-      .about-content {
+      /* Stats Grid */
+      .stats-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 50px;
       }
 
-      .about-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 20px;
-        padding: 24px;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      .stat-card {
+        background: white;
         border-radius: 16px;
-        border-left: 5px solid;
+        padding: 32px 28px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         transition: all 0.3s ease;
       }
 
-      .about-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       }
 
-      .about-item:nth-child(1) {
-        border-left-color: #dc2626;
+      .stat-info {
+        flex: 1;
       }
 
-      .about-item:nth-child(2) {
-        border-left-color: #d97706;
+      .stat-label {
+        font-size: 0.95rem;
+        color: #718096;
+        margin-bottom: 8px;
+        font-weight: 500;
       }
 
-      .about-item:nth-child(3) {
-        border-left-color: #2563eb;
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        line-height: 1;
       }
 
-      .about-item:nth-child(4) {
-        border-left-color: #059669;
-      }
-
-      .about-icon {
-        width: 50px;
-        height: 50px;
+      .stat-icon {
+        width: 56px;
+        height: 56px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        color: white;
+        font-size: 28px;
         flex-shrink: 0;
-        font-weight: bold;
+        margin-left: 20px;
       }
 
-      .about-icon.what {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
+      .stat-card:nth-child(1) .stat-icon {
+        background: linear-gradient(135deg, #fc466b, #e74c3c);
+        color: white;
       }
 
-      .about-icon.why {
-        background: linear-gradient(135deg, #d97706, #b45309);
+      .stat-card:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
       }
 
-      .about-icon.statistics {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      .stat-card:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #14b8a6, #0d9488);
+        color: white;
       }
 
-      .about-icon.mission {
-        background: linear-gradient(135deg, #059669, #047857);
+      .stat-card:nth-child(4) .stat-icon {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
       }
 
-      .about-text h3 {
-        font-weight: 700;
-        font-size: 1.2rem;
-        margin-bottom: 12px;
-        color: #1a202c;
-      }
-
-      .about-text p {
-        color: #4b5563;
-        line-height: 1.7;
-        font-size: 0.95rem;
-      }
-
-      .about-text strong {
-        color: #1a202c;
-        font-weight: 600;
-      }
-
-      .main-content {
+      /* Main Content Layout */
+      .main-layout {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 0;
-        margin-bottom: 0;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 50px;
       }
 
-      .awareness-section {
+      /* Left Content Card */
+      .left-content {
         background: white;
+        border-radius: 20px;
         padding: 40px;
-        border-radius: 0;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       }
 
-      .risk-levels {
-        background: white;
-        padding: 40px;
-        border-radius: 0;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .section-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #fc466b, #e74c3c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: white;
       }
 
       .section-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        margin-bottom: 24px;
         color: #1a202c;
-        display: flex;
-        align-items: center;
-        gap: 12px;
       }
 
-      .section-title::before {
-        content: "";
-        width: 4px;
-        height: 24px;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border-radius: 2px;
+      .content-text {
+        font-size: 1rem;
+        color: #4a5568;
+        line-height: 1.8;
+        margin-bottom: 20px;
       }
 
-      .awareness-content {
-        margin-bottom: 32px;
-      }
-
-      .awareness-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        margin-bottom: 24px;
-        padding: 20px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border-left: 4px solid;
-      }
-
-      .awareness-item.symptom {
-        border-left-color: #dc2626;
-      }
-
-      .awareness-item.risk {
-        border-left-color: #d97706;
-      }
-
-      .awareness-item.prevention {
-        border-left-color: #059669;
-      }
-
-      .awareness-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        color: white;
-        flex-shrink: 0;
-      }
-
-      .symptom .awareness-icon {
-        background: #dc2626;
-      }
-
-      .risk .awareness-icon {
-        background: #d97706;
-      }
-
-      .prevention .awareness-icon {
-        background: #059669;
-      }
-
-      .awareness-text h4 {
+      .content-text strong {
+        color: #1a202c;
         font-weight: 600;
-        margin-bottom: 8px;
-        color: #1a202c;
       }
 
-      .awareness-text p {
-        color: #64748b;
-        font-size: 0.95rem;
+      .highlight-text {
+        color: #0891b2;
+        font-weight: 600;
       }
 
-      .risk-level-item {
-        background: #f8fafc;
-        padding: 24px;
+      .warning-box {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1px solid #fbbf24;
         border-radius: 12px;
-        margin-bottom: 16px;
-        border-left: 5px solid;
-        transition: all 0.3s ease;
+        padding: 20px 24px;
+        margin-top: 30px;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
       }
 
-      .risk-level-item:hover {
-        background: #f1f5f9;
+      .warning-icon {
+        font-size: 24px;
+        flex-shrink: 0;
+        margin-top: 2px;
       }
 
-      .risk-low {
-        border-left-color: #059669;
-      }
-
-      .risk-moderate {
-        border-left-color: #d97706;
-      }
-
-      .risk-high {
-        border-left-color: #dc2626;
-      }
-
-      .risk-critical {
-        border-left-color: #991b1b;
-        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-      }
-
-      .risk-title {
+      .warning-content h4 {
+        font-size: 1.05rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        color: #92400e;
+        margin-bottom: 8px;
+      }
+
+      .warning-content p {
+        font-size: 0.95rem;
+        color: #92400e;
+        line-height: 1.6;
+      }
+
+      /* Right Content - Brain Image */
+      .brain-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        position: relative;
+        height: 100%;
+        min-height: 450px;
+      }
+
+      .brain-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        inset: 0;
+      }
+
+      .brain-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        padding: 32px;
+        color: white;
+      }
+
+      .brain-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.95;
         margin-bottom: 8px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
 
-      .risk-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: white;
+      .brain-title {
+        font-size: 1.8rem;
+        font-weight: 700;
       }
 
-      .low-badge {
-        background: #059669;
-      }
-
-      .moderate-badge {
-        background: #d97706;
-      }
-
-      .high-badge {
-        background: #dc2626;
-      }
-
-      .critical-badge {
-        background: #991b1b;
-      }
-
-      .risk-actions {
-        margin-top: 12px;
-      }
-
-      .risk-actions ul {
-        list-style: none;
-        margin-left: 0;
-      }
-
-      .risk-actions li {
-        position: relative;
-        padding-left: 20px;
-        margin-bottom: 6px;
-        font-size: 0.9rem;
-        color: #475569;
-      }
-
-      .risk-actions li::before {
-        content: "▶";
-        position: absolute;
-        left: 0;
-        top: 0;
-        color: #64748b;
-        font-size: 12px;
-      }
-
+      /* Bottom Section */
       .bottom-section {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0;
+        gap: 30px;
+        margin-bottom: 50px;
       }
 
-      .emergency-card {
-        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-        color: white;
-        padding: 40px;
-        border-radius: 0;
-        text-align: center;
-        box-shadow: 0 12px 40px rgba(220, 38, 38, 0.3);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .emergency-card::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 10px,
-          rgba(255, 255, 255, 0.05) 10px,
-          rgba(255, 255, 255, 0.05) 20px
-        );
-        animation: shine 3s ease-in-out infinite;
-      }
-
-      @keyframes shine {
-        0%,
-        100% {
-          opacity: 0;
-        }
-        50% {
-          opacity: 1;
-        }
-      }
-
-      .emergency-number {
-        font-size: 3rem;
-        font-weight: 900;
-        margin-bottom: 16px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .prevention-tips {
+      /* Key Risk Factors */
+      .risk-factors-card {
         background: white;
+        border-radius: 20px;
         padding: 40px;
-        border-radius: 0;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       }
 
-      .tips-grid {
-        display: grid;
-        gap: 16px;
+      .risk-factors-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
       }
 
-      .tip-item {
+      .risk-factors-icon {
+        font-size: 28px;
+        color: #0891b2;
+      }
+
+      .risk-factors-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a202c;
+      }
+
+      .risk-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .risk-item {
         display: flex;
         align-items: center;
         gap: 16px;
-        padding: 20px;
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        padding: 16px;
+        background: #f8f9fa;
         border-radius: 12px;
-        border-left: 4px solid #0ea5e9;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
       }
 
-      .tip-item:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2);
+      .risk-item:hover {
+        background: #e9ecef;
+        transform: translateX(4px);
       }
 
-      .tip-icon {
-        width: 40px;
-        height: 40px;
-        background: #0ea5e9;
-        border-radius: 50%;
+      .risk-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #14b8a6, #0d9488);
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 18px;
+        font-weight: 700;
+        font-size: 0.95rem;
         flex-shrink: 0;
       }
 
-      .floating-action {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      .risk-text {
+        font-size: 1rem;
+        color: #4a5568;
+      }
+
+      /* CTA Section */
+      .cta-section {
+        background: linear-gradient(135deg, #2c5282, #2563eb);
+        border-radius: 20px;
+        padding: 50px 45px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+      }
+
+      .cta-content h2 {
+        font-size: 2.2rem;
+        font-weight: 700;
         color: white;
-        padding: 16px 24px;
-        border-radius: 50px;
+        margin-bottom: 14px;
+      }
+
+      .cta-content p {
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+        max-width: 520px;
+      }
+
+      .cta-button {
+        background: white;
+        color: #2563eb;
+        padding: 16px 36px;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 700;
         text-decoration: none;
-        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.4);
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
         transition: all 0.3s ease;
-        z-index: 1000;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
-      .floating-action:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.6);
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
       }
 
-      @media (max-width: 768px) {
-        .main-content {
-          grid-template-columns: 1fr;
-          gap: 24px;
+      .cta-button span {
+        font-size: 1.2rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
+      @media (max-width: 900px) {
+        .main-layout,
         .bottom-section {
           grid-template-columns: 1fr;
-          gap: 24px;
         }
 
-        .about-content {
-          grid-template-columns: 1fr;
-          gap: 20px;
+        .cta-section {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .cta-content p {
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 40px 20px;
         }
 
         .header h1 {
+          font-size: 2.2rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+          padding: 24px 20px;
+        }
+
+        .stat-value {
           font-size: 2rem;
         }
 
-        .dashboard-container {
-          padding: 0;
+        .left-content,
+        .risk-factors-card {
+          padding: 30px 24px;
+        }
+
+        .section-title,
+        .risk-factors-title {
+          font-size: 1.4rem;
+        }
+
+        .cta-section {
+          padding: 40px 28px;
+        }
+
+        .cta-content h2 {
+          font-size: 1.8rem;
         }
       }
 
-      .pulse {
-        animation: pulse 2s infinite;
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-        100% {
-          transform: scale(1);
-        }
+      .header,
+      .stats-grid,
+      .main-layout,
+      .bottom-section,
+      .cta-section {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .stats-grid {
+        animation-delay: 0.1s;
+      }
+
+      .main-layout {
+        animation-delay: 0.2s;
+      }
+
+      .bottom-section {
+        animation-delay: 0.3s;
+      }
+
+      .cta-section {
+        animation-delay: 0.4s;
       }
     </style>
   </head>
   <body>
-    <div class="dashboard-container">
-      <!-- Header Section -->
+    <div class="container">
+      <!-- Header -->
       <div class="header">
-        <h1>SCA Risk Prevention Dashboard</h1>
-        <p>
-          Empowering young adults with knowledge and tools to prevent sudden
-          cardiac arrest through early detection and lifestyle modifications
-        </p>
+        <h1>Sudden Cardiac Arrest</h1>
+        <p>Understanding, Prevention, and Risk Assessment</p>
       </div>
 
-      <!-- About SCA Section -->
-      <div class="about-sca-section">
-        <h2 class="section-title">🫀 About Sudden Cardiac Arrest</h2>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Annual SCA Cases</div>
+            <div class="stat-value">356,000+</div>
+          </div>
+          <div class="stat-icon">❤️</div>
+        </div>
 
-        <div class="about-content">
-          <div class="about-item">
-            <div class="about-icon what">❓</div>
-            <div class="about-text">
-              <h3>What is Sudden Cardiac Arrest?</h3>
-              <p>
-                Sudden Cardiac Arrest (SCA) is a life-threatening emergency that
-                occurs when the heart suddenly stops beating effectively. Unlike
-                a heart attack, which is caused by blocked blood flow, SCA is an
-                electrical problem where the heart's rhythm becomes chaotic,
-                causing it to quiver instead of pumping blood. Without immediate
-                treatment, SCA leads to death within minutes.
-              </p>
-              <br />
-              <p>
-                <strong>Critical Statistics:</strong> Every year,
-                <strong>350,000+ Americans</strong> experience SCA outside of
-                hospitals. The survival rate is only
-                <strong>9% without immediate CPR</strong>, but increases to
-                <strong>70% with proper intervention</strong>.
-              </p>
-            </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Survival Rate</div>
+            <div class="stat-value">~10%</div>
+          </div>
+          <div class="stat-icon">⚠️</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Treatable Cases</div>
+            <div class="stat-value">70%</div>
+          </div>
+          <div class="stat-icon">🛡️</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <div class="stat-label">Response Time Critical</div>
+            <div class="stat-value">&lt; 5 min</div>
+          </div>
+          <div class="stat-icon">🕐</div>
+        </div>
+      </div>
+
+      <!-- Main Layout -->
+      <div class="main-layout">
+        <!-- Left Content -->
+        <div class="left-content">
+          <div class="section-header">
+            <div class="section-icon">⚡</div>
+            <h2 class="section-title">What is Sudden Cardiac Arrest?</h2>
           </div>
 
-          <div class="about-item">
-            <div class="about-icon mission">🎯</div>
-            <div class="about-text">
-              <h3>Our Mission: Prevention Through Awareness</h3>
+          <p class="content-text">
+            <strong>Sudden Cardiac Arrest (SCA)</strong> is a life-threatening
+            emergency that occurs when the heart suddenly stops beating
+            effectively. Unlike a heart attack, which is caused by a blockage,
+            SCA is triggered by an electrical malfunction in the heart.
+          </p>
+
+          <p class="content-text">
+            During SCA, the heart's electrical system malfunctions, causing it
+            to beat irregularly (arrhythmia) or stop entirely. This prevents
+            blood from flowing to the brain, lungs, and other organs, leading to
+            loss of consciousness and death within minutes if not treated
+            immediately.
+          </p>
+
+          <p class="content-text">
+            The key to survival is
+            <span class="highlight-text">immediate action</span>: calling
+            emergency services, performing CPR, and using an Automated External
+            Defibrillator (AED) can dramatically increase survival chances.
+          </p>
+
+          <div class="warning-box">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+              <h4>Important Warning</h4>
               <p>
-                <strong>Why Young Adults Are at Risk:</strong> Approximately
-                <strong>25% of SCA cases occur in people under 35</strong>.
-                Young adults face unique risks including undiagnosed genetic
-                conditions, intense athletic activities, substance use, and
-                lifestyle factors. Many underlying heart conditions remain
-                silent until a sudden cardiac event occurs.
-              </p>
-              <br />
-              <p>
-                <strong>Our Goal:</strong> Up to
-                <strong>70% of SCA cases are preventable</strong> through proper
-                screening, lifestyle modifications, and early intervention. This
-                platform empowers young adults to take control of their cardiac
-                health and save lives through prevention.
+                SCA can happen to anyone, even those who appear healthy. Early
+                risk assessment and awareness are crucial for prevention.
               </p>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Main Content -->
-      <div class="main-content">
-        <div class="awareness-section">
-          <h2 class="section-title">🫀 SCA Awareness</h2>
-
-          <div class="awareness-content">
-            <div class="awareness-item symptom">
-              <div class="awareness-icon">⚠️</div>
-              <div class="awareness-text">
-                <h4>Warning Signs</h4>
-                <p>
-                  Chest pain, shortness of breath, dizziness, fainting, rapid
-                  heartbeat, fatigue during exercise, family history of sudden
-                  cardiac death
-                </p>
-              </div>
-            </div>
-
-            <div class="awareness-item risk">
-              <div class="awareness-icon">⚡</div>
-              <div class="awareness-text">
-                <h4>Risk Factors</h4>
-                <p>
-                  Hypertrophic cardiomyopathy, long QT syndrome, excessive
-                  caffeine, performance-enhancing drugs, intense physical
-                  activity, genetic disorders
-                </p>
-              </div>
-            </div>
-
-            <div class="awareness-item prevention">
-              <div class="awareness-icon">🛡️</div>
-              <div class="awareness-text">
-                <h4>Prevention Keys</h4>
-                <p>
-                  Regular cardiac screening, healthy lifestyle, stress
-                  management, avoiding stimulants, proper hydration, gradual
-                  exercise progression
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="risk-levels">
-          <h2 class="section-title">📊 Risk Level Actions</h2>
-
-          <div class="risk-level-item risk-low">
-            <div class="risk-title">
-              Low Risk
-              <span class="risk-badge low-badge">0-25%</span>
-            </div>
-            <div class="risk-actions">
-              <ul>
-                <li>Continue healthy lifestyle habits</li>
-                <li>Annual health check-ups</li>
-                <li>Regular moderate exercise</li>
-                <li>Stay hydrated during activities</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="risk-level-item risk-moderate">
-            <div class="risk-title">
-              Moderate Risk
-              <span class="risk-badge moderate-badge">25-50%</span>
-            </div>
-            <div class="risk-actions">
-              <ul>
-                <li>Consult cardiologist within 3 months</li>
-                <li>Consider ECG and echocardiogram</li>
-                <li>Modify exercise intensity</li>
-                <li>Monitor symptoms closely</li>
-                <li>Reduce stress and caffeine intake</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="risk-level-item risk-high">
-            <div class="risk-title">
-              High Risk
-              <span class="risk-badge high-badge">50-75%</span>
-            </div>
-            <div class="risk-actions">
-              <ul>
-                <li>URGENT: See cardiologist within 2 weeks</li>
-                <li>Complete cardiac evaluation required</li>
-                <li>Avoid intense physical activity</li>
-                <li>Consider medication/intervention</li>
-                <li>Family screening recommended</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="risk-level-item risk-critical">
-            <div class="risk-title">
-              Critical Risk
-              <span class="risk-badge critical-badge">75-100%</span>
-            </div>
-            <div class="risk-actions">
-              <ul>
-                <li>EMERGENCY: See cardiologist immediately</li>
-                <li>Comprehensive cardiac testing</li>
-                <li>Restrict all strenuous activities</li>
-                <li>Consider ICD placement</li>
-                <li>Immediate lifestyle modifications</li>
-              </ul>
-            </div>
+        <!-- Right Content - Brain Image -->
+        <div class="brain-card">
+          <img
+            src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop"
+            alt="Brain anatomy"
+            class="brain-image"
+            onerror="
+              this.style.display = 'none';
+              this.parentElement.style.background =
+                'linear-gradient(135deg, #4a5568, #2d3748)';
+            "
+          />
+          <div class="brain-overlay">
+            <div class="brain-subtitle">⚡ Cardiac Health Monitoring</div>
+            <div class="brain-title">Early Detection Saves Lives</div>
           </div>
         </div>
       </div>
 
       <!-- Bottom Section -->
       <div class="bottom-section">
-        <div class="emergency-card pulse">
-          <div class="emergency-number">911</div>
-          <h3>Emergency Response</h3>
-          <p>If someone collapses suddenly:</p>
-          <p><strong>Call 911 → Start CPR → Use AED if available</strong></p>
-          <p style="margin-top: 16px; font-size: 0.9rem">
-            Every minute counts - immediate action saves lives
+        <!-- Left: Additional Info or Continuation -->
+        <div class="left-content">
+          <p class="content-text">
+            The key to survival is
+            <span class="highlight-text">immediate action</span>: calling
+            emergency services, performing CPR, and using an Automated External
+            Defibrillator (AED) can dramatically increase survival chances.
           </p>
+
+          <div class="warning-box">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+              <h4>Important Warning</h4>
+              <p>
+                SCA can happen to anyone, even those who appear healthy. Early
+                risk assessment and awareness are crucial for prevention.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div class="prevention-tips">
-          <h2 class="section-title">💡 Prevention Tips</h2>
-          <div class="tips-grid">
-            <div class="tip-item">
-              <div class="tip-icon">🏃</div>
-              <div>
-                <strong>Gradual Exercise:</strong> Build intensity slowly, warm
-                up properly
+        <!-- Right: Key Risk Factors -->
+        <div class="risk-factors-card">
+          <div class="risk-factors-header">
+            <span class="risk-factors-icon">👥</span>
+            <h3 class="risk-factors-title">Key Risk Factors</h3>
+          </div>
+
+          <div class="risk-list">
+            <div class="risk-item">
+              <div class="risk-number">1</div>
+              <div class="risk-text">
+                Previous heart attack or coronary artery disease
               </div>
             </div>
-            <div class="tip-item">
-              <div class="tip-icon">💧</div>
-              <div>
-                <strong>Stay Hydrated:</strong> Drink plenty of water,
-                especially during exercise
+
+            <div class="risk-item">
+              <div class="risk-number">2</div>
+              <div class="risk-text">Heart failure or cardiomyopathy</div>
+            </div>
+
+            <div class="risk-item">
+              <div class="risk-number">3</div>
+              <div class="risk-text">
+                Family history of sudden cardiac arrest
               </div>
             </div>
-            <div class="tip-item">
-              <div class="tip-icon">☕</div>
-              <div>
-                <strong>Limit Stimulants:</strong> Avoid excessive caffeine and
-                energy drinks
-              </div>
+
+            <div class="risk-item">
+              <div class="risk-number">4</div>
+              <div class="risk-text">Abnormal heart rhythms (arrhythmias)</div>
             </div>
-            <div class="tip-item">
-              <div class="tip-icon">😌</div>
-              <div>
-                <strong>Manage Stress:</strong> Practice meditation, yoga,
-                adequate sleep
-              </div>
+
+            <div class="risk-item">
+              <div class="risk-number">5</div>
+              <div class="risk-text">High blood pressure and diabetes</div>
             </div>
-            <div class="tip-item">
-              <div class="tip-icon">🩺</div>
-              <div>
-                <strong>Regular Screening:</strong> Annual ECG for high-risk
-                individuals
-              </div>
+
+            <div class="risk-item">
+              <div class="risk-number">6</div>
+              <div class="risk-text">Smoking and obesity</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Floating Action Button -->
-      <a href="#assessment" class="floating-action">
-        🫀 Take Risk Assessment
-      </a>
+      <!-- CTA Section -->
+      <div class="cta-section">
+        <div class="cta-content">
+          <h2>Assess Your Risk Today</h2>
+          <p>
+            Take our comprehensive risk assessment to understand your cardiac
+            health and receive personalized recommendations.
+          </p>
+        </div>
+        <a href="#assessment" class="cta-button">
+          Start Assessment
+          <span>→</span>
+        </a>
+      </div>
     </div>
   </body>
 </html>
