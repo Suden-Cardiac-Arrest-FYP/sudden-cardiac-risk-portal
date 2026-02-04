@@ -38,18 +38,7 @@ import {
   animate,
   AnimationEvent,
 } from '@angular/animations';
-
-interface NavItem {
-  icon: string;
-  title: string;
-  routerLink: string;
-  id: string;
-}
-
-interface CategoryGroup {
-  name: string;
-  items: NavItem[];
-}
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-sidebar',
@@ -84,14 +73,14 @@ interface CategoryGroup {
           height: '0',
           opacity: 0,
           overflow: 'hidden',
-        })
+        }),
       ),
       state(
         'expanded',
         style({
           height: '*',
           opacity: 1,
-        })
+        }),
       ),
       transition('collapsed <=> expanded', [animate('300ms ease-in-out')]),
     ]),
@@ -112,14 +101,15 @@ interface CategoryGroup {
 })
 export class MainsectionComponent implements OnInit {
   @ViewChild('op') op!: Popover;
+  @ViewChild('popup') popup!: Popover;
   selectedSampleOption: any;
 
   sampleOptions: any;
 
   sampleAppsSidebarNavs: any[] = [];
-  categorizedNavItems: CategoryGroup[] = [];
   filteredMainItems: any[] = [];
   filteredOtherItems: any[] = [];
+  productSubItems: any[] = [];
 
   sampleAppsSidebarNavsMore: any;
 
@@ -127,6 +117,7 @@ export class MainsectionComponent implements OnInit {
   selectedProductSubItem: string = '';
 
   isSlimMenu: boolean = false;
+  isProductMenuExpanded: boolean = false;
 
   visibleRight: boolean = false;
 
@@ -136,7 +127,7 @@ export class MainsectionComponent implements OnInit {
 
   items: MenuItem[] | undefined;
 
-  appConfigService = inject(AppConfigService);
+  configService = inject(AppConfigService);
 
   ProfileData: any;
 
@@ -144,38 +135,34 @@ export class MainsectionComponent implements OnInit {
 
   userRole: any;
 
-  private categoryMappings = {
-    Dashboard: ['Dashboard', 'My Profile'],
-    'Employee Management': [
-      'Employee',
-      'Designation',
-      'Department',
-      'Evaluation Form',
-    ],
-    'Leave & Attendance': [
-      'Attendance',
-      'Holiday',
-      'Shift',
-      'Leave',
-      'Covering Request',
-    ],
-
-    'Report & Payslip': ['Paysheet', 'Report', 'Payslips'],
-    'User & Access': ['Role', 'Users'],
-    'System Settings': ['Settings'],
-  };
-
   get isDarkMode(): boolean {
-    return this.appConfigService.appState().darkTheme;
+    return this.configService.appState().darkTheme;
   }
 
   toggle(event: any) {
     this.op.toggle(event);
   }
 
+  toggleProductMenu() {
+    if (!this.isSlimMenu || (this.isSlimMenu && this.isProductMenuExpanded)) {
+      this.isProductMenuExpanded = !this.isProductMenuExpanded;
+    } else if (this.isSlimMenu) {
+      // Set the selected nav to 'Product' when expanding the menu
+      // This will highlight the Product parent menu item and remove Dashboard highlighting
+      this.isProductMenuExpanded = true;
+    }
+
+    if (this.isSlimMenu) {
+      this.toggleSidebarPopover();
+    }
+  }
+
   private auth = inject(AuthService);
-  private router = inject(Router);
-  private doc = inject(DOCUMENT);
+
+  constructor(
+    private router: Router,
+    @Inject(DOCUMENT) private doc: Document,
+  ) {}
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -183,15 +170,17 @@ export class MainsectionComponent implements OnInit {
   }
 
   getLogoSrc(): string {
-    return this.isDarkMode
-      ? 'https://sca-mihishi-s3-bucket.s3.eu-west-2.amazonaws.com/sca-logo.jpg'
-      : 'https://sca-mihishi-s3-bucket.s3.eu-west-2.amazonaws.com/sca-logo.jpg';
+    return !this.isDarkMode ? environment.LogoLight : environment.LogoDark;
   }
 
   logout() {
     this.op.hide();
     sessionStorage.removeItem('BranchId');
     this.auth.logout({ logoutParams: { returnTo: this.doc.location.origin } });
+  }
+
+  toggleSidebarPopover() {
+    this.popup.toggle(event);
   }
 
   ngOnInit() {
@@ -225,50 +214,55 @@ export class MainsectionComponent implements OnInit {
   LayoutClick(event: Event) {
     if (this.isSlimMenu) {
       event.stopPropagation();
-      this.appConfigService.toggleSidebar();
+      this.configService.toggleSidebar();
+      this.popup.hide();
     }
   }
 
   toggleDarkMode() {
-    this.appConfigService.appState.update((state: { darkTheme: any }) => ({
+    this.configService.appState.update((state) => ({
       ...state,
       darkTheme: !state.darkTheme,
     }));
   }
 
   private updateSlimMenu(width: number): void {
+    const wasSlim = this.isSlimMenu;
     this.isSlimMenu = width < 768;
+    if (wasSlim && !this.isSlimMenu) {
+      this.isProductMenuExpanded =
+        this.selectedSampleAppsSidebarNav === 'Product';
+    }
   }
 
   private async updateSelectedNav(url: string): Promise<void> {
     await this.waitForRoleConfig();
-
-    const slashIndex = this.nthIndex(url, '/', 2);
-    const baseUrl = (slashIndex >= 0 ? url.slice(0, slashIndex) : url).split(
-      '?'
-    )[0];
-    if (baseUrl.includes('/evaluationprogress')) {
-      this.selectedSampleAppsSidebarNav = 'Evaluation Form';
-      this.selectedProductSubItem = '';
-      return;
-    }
+    const baseUrl = url.split('?')[0];
     const matchingNav = this.sampleAppsSidebarNavs.find(
-      (nav: any) => baseUrl === nav.routerLink && !nav.group
+      (nav: any) => baseUrl === nav.routerLink && !nav.group,
     );
 
-    this.selectedProductSubItem = '';
-    this.selectedSampleAppsSidebarNav = matchingNav
-      ? matchingNav.title
-      : 'Dashboard';
-  }
+    const matchingSubItem = this.productSubItems.find(
+      (nav: any) => baseUrl === nav.routerLink,
+    );
 
-  nthIndex(str: string, pat: string, n: number): number {
-    let i = -1;
-    while (n-- > 0 && i < str.length) {
-      i = str.indexOf(pat, i + 1);
-      if (i < 0) return -1;
+    if (matchingSubItem) {
+      this.selectedProductSubItem = matchingSubItem.title;
+      this.selectedSampleAppsSidebarNav = matchingSubItem.title;
+      this.isProductMenuExpanded = !this.isSlimMenu;
+    } else {
+      this.selectedProductSubItem = '';
+      this.selectedSampleAppsSidebarNav = matchingNav
+        ? matchingNav.title
+        : 'Dashboard';
+      if (
+        !this.productSubItems.some(
+          (item) => item.title === this.selectedSampleAppsSidebarNav,
+        )
+      ) {
+        this.isProductMenuExpanded = false;
+      }
     }
-    return i;
   }
 
   private waitForRoleConfig(): Promise<void> {
@@ -292,174 +286,93 @@ export class MainsectionComponent implements OnInit {
     return roles;
   }
 
-  private categorizeNavItems(navItems: NavItem[]): CategoryGroup[] {
-    const categories: CategoryGroup[] = [];
-    const usedItems = new Set<string>();
-
-    // Create categories in the specified order
-    Object.entries(this.categoryMappings).forEach(
-      ([categoryName, itemTitles]) => {
-        const categoryItems: NavItem[] = [];
-        itemTitles.forEach((title) => {
-          const matchingItem = navItems.find((item) => item.title === title);
-          if (matchingItem && !usedItems.has(matchingItem.title)) {
-            categoryItems.push(matchingItem);
-            usedItems.add(matchingItem.title);
-          }
-        });
-
-        if (categoryItems.length > 0) {
-          categories.push({
-            name: categoryName,
-            items: categoryItems,
-          });
-        }
-      }
-    );
-
-    // Add remaining items to "Unknown" category
-    const unknownItems = navItems.filter((item) => !usedItems.has(item.title));
-    if (unknownItems.length > 0) {
-      categories.push({
-        name: 'Unknown',
-        items: unknownItems,
-      });
-    }
-
-    return categories;
-  }
-
   filterSidebarNavs() {
     if (this.userRole) {
       const allNavItems = [
         { icon: 'pi pi-th-large', title: 'Dashboard', routerLink: '', id: '' },
+
         {
-          icon: 'pi pi-user',
-          title: 'My Profile',
-          routerLink: '/my-profile',
-          id: 'DTO6000',
+          icon: 'pi pi-heart',
+          title: 'Clinical Assessment',
+          routerLink: '/risk-assessment',
+          id: 'DTO5226',
         },
+
         {
-          icon: 'pi pi-credit-card',
-          title: 'Paysheet',
-          routerLink: '/paysheet',
-          id: 'DTO5535',
+          icon: 'pi pi-chart-line',
+          title: 'ECG Assessment',
+          routerLink: '/ecg-assessment',
+          id: 'DTO5226',
         },
-        {
-          icon: 'pi pi-check-square',
-          title: 'Attendance',
-          routerLink: '/attendance',
-          id: 'DTO5531',
-        },
+
         // {
-        //   icon: 'pi pi-bell',
-        //   title: 'Notification',
-        //   routerLink: '/notification',
-        //   id: 'DTO5538',
+        //   icon: 'pi pi-box', // 📦 Reseller Orders
+        //   title: 'Reseller Orders',
+        //   routerLink: '/reseller-orders',
+        //   id: 'DTO5225',
         // },
-        {
-          icon: 'pi pi-file-o',
-          title: 'Report',
-          routerLink: '/report',
-          id: 'DTO5537',
-        },
-        {
-          icon: 'pi pi-users',
-          title: 'Employee',
-          routerLink: '/employee',
-          id: 'DTO5525',
-        },
+
         // {
-        //   icon: 'pi pi-receipt',
-        //   title: 'Pay Slip',
-        //   routerLink: '/payslip',
-        //   id: 'DTO5536',
+        //   icon: 'pi pi-upload', // ⬆️ Order to Admin
+        //   title: 'Order To Admin',
+        //   routerLink: '/order-to-admin',
+        //   id: 'DTO5228',
         // },
-        {
-          icon: 'pi pi-briefcase',
-          title: 'Designation',
-          routerLink: '/designation',
-          id: 'DTO5526',
-        },
-        // REMOVE OR COMMENT OUT these standalone items since they're now tabs:
+
         // {
-        //   icon: 'pi pi-list-check',
-        //   title: 'Irregular Attendance',
-        //   routerLink: '/irregularattendance',
-        //   id: 'DTO5532',
+        //   icon: 'pi pi-users', // 👥 Customer Orders
+        //   title: 'Customer Orders',
+        //   routerLink: '/customer-orders',
+        //   id: 'DTO5224',
+        // },
+
+        // {
+        //   icon: 'pi pi-send', // 📩 Order to Merchant
+        //   title: 'Order To Merchant',
+        //   routerLink: '/order-to-merchant',
+        //   id: 'DTO5227',
+        // },
+
+        // {
+        //   icon: 'pi pi-briefcase', // 💼 Merchants
+        //   title: 'Merchants',
+        //   routerLink: '/merchants',
+        //   id: 'DTO5222',
+        // },
+
+        // {
+        //   icon: 'pi pi-id-card', // 🪪 Resellers
+        //   title: 'Resellers',
+        //   routerLink: '/resellers',
+        //   id: 'DTO5230',
+        // },
+
+        // {
+        //   icon: 'pi pi-user', // 👤 Customers
+        //   title: 'Customers',
+        //   routerLink: '/customers',
+        //   id: 'DTO5223',
+        // },
+
+        // {
+        //   icon: 'pi pi-file-excel',
+        //   title: 'Reports',
+        //   routerLink: '/report',
+        //   // id: 'DTO5210',
         // },
         // {
-        //   icon: 'pi pi-tablet',
-        //   title: 'Device',
-        //   routerLink: '/device',
-        //   id: 'DTO5574',
+        //   icon: 'pi pi-cog',
+        //   title: 'Settings',
+        //   routerLink: '/organization',
+        //   id: 'DTO5232',
         // },
-        {
-          icon: 'pi pi-briefcase',
-          title: 'Department',
-          routerLink: '/department',
-          id: 'DTO5527',
-        },
-        {
-          icon: 'pi pi-sparkles',
-          title: 'Holiday',
-          routerLink: '/holiday',
-          id: 'DTO5533',
-        },
-        {
-          icon: 'pi pi-clock',
-          title: 'Shift',
-          routerLink: '/shift',
-          id: 'DTO5534',
-        },
-        {
-          icon: 'pi pi-thumbtack',
-          title: 'Leave',
-          routerLink: '/leave',
-          id: 'DTO5528',
-        },
-        {
-          icon: 'pi pi-file-o',
-          title: 'Covering Request',
-          routerLink: '/coveringrequest',
-          id: 'DTO5529',
-        },
-        {
-          icon: 'pi pi-address-book',
-          title: 'Evaluation Form',
-          routerLink: '/evaluationform',
-          id: 'DTO5530',
-        },
-        {
-          icon: 'pi pi-address-book',
-          title: 'Evaluation Progress',
-          routerLink: '/evaluationprogress',
-          id: 'DTO5541',
-        },
-        {
-          icon: 'pi pi-cog',
-          title: 'Settings',
-          routerLink: '/company',
-          id: 'DTO5539',
-        },
-        {
-          icon: 'pi pi-key',
-          title: 'Role',
-          routerLink: '/role',
-          id: 'DTO5522',
-        },
-        {
-          icon: 'pi pi-users',
-          title: 'Users',
-          routerLink: '/user',
-          id: 'DTO5520',
-        },
-        {
-          icon: 'pi pi-wallet',
-          title: 'Payslips',
-          routerLink: '/payslips',
-          id: 'DTO6003',
-        },
+
+        // Commented out items (keeping them in code but not showing in UI)
+        /*
+        { icon: 'pi pi-users', title: 'Users', routerLink: '/user', id: 'DTO5212' },
+        { icon: 'pi pi-sitemap', title: 'Branch', routerLink: '/branch', id: 'DTO5234' },
+        { icon: 'pi pi-key', title: 'Role', routerLink: '/role', id: 'DTO5214' },
+        */
       ];
 
       const filteredItems = allNavItems.filter((item) => {
@@ -472,14 +385,12 @@ export class MainsectionComponent implements OnInit {
 
       this.sampleAppsSidebarNavs = filteredItems;
 
-      this.categorizedNavItems = this.categorizeNavItems(filteredItems);
-
       this.filteredMainItems = filteredItems.filter(
-        (item) => item.title === 'Dashboard'
+        (item) => item.title === 'Dashboard',
       );
 
       this.filteredOtherItems = filteredItems.filter(
-        (item) => item.title !== 'Dashboard'
+        (item) => item.title !== 'Dashboard',
       );
     }
   }

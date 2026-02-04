@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   DialogService,
   DynamicDialogConfig,
@@ -20,16 +20,16 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Select } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { filter, finalize, map, Subject, takeUntil } from 'rxjs';
+import { filter, finalize, map, Subscription } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
-
+import { DatePicker } from 'primeng/datepicker';
 import { PasswordModule } from 'primeng/password';
 import { DropdownModule } from 'primeng/dropdown';
-
-
+import { SelectButton } from 'primeng/selectbutton';
+import { Checkbox } from 'primeng/checkbox';
 
 import { RoleService } from '../../../services/Role.service';
-import { RoleDto, RoleResponse } from '../../..//dto/Role.dto';
+import { RoleDto } from '../../..//dto/Role.dto';
 
 import { IUser, UserDto } from '../../../dto/User.dto';
 import { UserService } from '../../../services/User.service';
@@ -43,9 +43,12 @@ import { UserService } from '../../../services/User.service';
     FloatLabel,
     ButtonModule,
     InputTextModule,
+    DatePicker,
     PasswordModule,
+    SelectButton,
     DropdownModule,
     Select,
+    Checkbox,
     FormsModule,
   ],
   templateUrl: './create-update-user.html',
@@ -54,6 +57,7 @@ import { UserService } from '../../../services/User.service';
 })
 export class CreateUpdateUser implements OnInit, OnDestroy {
   user: UserDto = {};
+  private subscription: Subscription = new Subscription();
   submitted: boolean = false;
   userForm!: FormGroup;
   isLoadingClient: boolean = false;
@@ -62,14 +66,15 @@ export class CreateUpdateUser implements OnInit, OnDestroy {
   tempRoleData: RoleDto = {};
   rolesData: RoleDto[] = [];
 
-  private destroy$ = new Subject<void>();
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
-  private config = inject(DynamicDialogConfig);
-  private ref = inject(DynamicDialogRef);
-  private fb = inject(FormBuilder);
+  constructor(
+    private userService: UserService,
+    private messageService: MessageService,
+    public config: DynamicDialogConfig,
+    public ref: DynamicDialogRef,
+    private fb: FormBuilder,
 
-  private roleService = inject(RoleService);
+    public roleService: RoleService
+  ) {}
 
   ngOnInit(): void {
     //set default data
@@ -82,11 +87,12 @@ export class CreateUpdateUser implements OnInit, OnDestroy {
       Email: [''],
       RoleId: [''],
       RoleName: [''],
+      BranchId: [''],
     });
 
     this.userForm.get('RoleId')!.valueChanges.subscribe((selectedRoleId) => {
       const selectedRole = this.rolesData.find(
-        (role) => role.RoleId === selectedRoleId,
+        (role) => role.RoleId === selectedRoleId
       );
       if (selectedRole) {
         this.userForm.patchValue({
@@ -102,45 +108,40 @@ export class CreateUpdateUser implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   findAllRoles(params: any) {
-    const requestParams = {
-      noPagination: 'true',
-    };
-    this.roleService
-      .findAllRole(requestParams)
-      .pipe(
-        filter((res: HttpResponse<RoleResponse>) => res.ok),
-        map((res: HttpResponse<RoleResponse>) => res.body),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(
-        (res: RoleResponse | null) => {
-          if (res) {
-            this.rolesData = res.Role;
+    this.isLoadingClient = true;
+    this.subscription.add(
+      this.roleService
+        .findAllRole(params)
+        .pipe(
+          filter((res: HttpResponse<RoleDto[]>) => res.ok),
+          map((res: HttpResponse<RoleDto[]>) => res.body)
+        )
+        .subscribe(
+          (res: RoleDto[] | null) => {
+            if (res != null) {
+              this.rolesData = res;
 
-            this.tempRoleData =
-              res.Role.find((resp) => {
-                return resp.RoleId === this.user.RoleId;
-              }) || {};
-          } else {
-            this.rolesData = [];
+              this.tempRoleData =
+                res.find((resp) => {
+                  return resp.RoleId === this.user.RoleId;
+                }) || {};
+            } else {
+              this.rolesData = [];
+            }
+            this.isLoadingClient = false;
+          },
+
+          (res: HttpErrorResponse) => {
+            this.isLoadingClient = false;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable To Load Clients',
+            });
           }
-          this.isLoadingClient = false;
-        },
-        (res: HttpErrorResponse) => {
-          this.isLoadingClient = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Unable To Load Clients',
-          });
-        },
-      );
+        )
+    );
   }
   onClientChange() {
     this.user.RoleId = this.tempRoleData.RoleId;
@@ -165,66 +166,73 @@ export class CreateUpdateUser implements OnInit, OnDestroy {
 
     const user = this.userForm.value;
 
+    if (user.RoleName == "Branch-Manager"){
+      const branchId = sessionStorage.getItem('BranchId') || '';
+      user.BranchId = branchId
+    }
+
     if (user.UserId) {
-      this.userService
-        .updateUser(user)
-        .pipe(
-          finalize(() => {
-            this.isLoading = false;
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(
-          (res) => {
-            if (res.body) {
+      this.subscription.add(
+        this.userService
+          .updateUser(user)
+          .pipe(
+            finalize(() => {
+              this.isLoading = false;
+            })
+          )
+          .subscribe(
+            (res) => {
+              if (res.body) {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Successful',
+                  detail: `User Updated Successfully.`,
+                  life: 3000,
+                });
+              }
+              this.CloseInstances();
+            },
+            (error) => {
               this.messageService.add({
-                severity: 'success',
-                summary: 'Successful',
-                detail: `User Updated Successfully.`,
+                severity: 'error',
+                summary: 'Failed',
+                detail: `Failed To Update User.`,
                 life: 3000,
               });
             }
-            this.CloseInstances();
-          },
-          (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Failed',
-              detail: `Failed To Update User.`,
-              life: 3000,
-            });
-          },
-        );
+          )
+      );
     } else {
-      this.userService
-        .createUser(user)
-        .pipe(
-          finalize(() => {
-            this.isLoading = false;
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(
-          (res) => {
-            if (res.body) {
+      this.subscription.add(
+        this.userService
+          .createUser(user)
+          .pipe(
+            finalize(() => {
+              this.isLoading = false;
+            })
+          )
+          .subscribe(
+            (res) => {
+              if (res.body) {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Successful',
+                  detail: `User Created Successfully.`,
+                  life: 3000,
+                });
+              }
+              this.CloseInstances();
+            },
+            (error) => {
               this.messageService.add({
-                severity: 'success',
-                summary: 'Successful',
-                detail: `User Created Successfully.`,
+                severity: 'error',
+                summary: 'Failed',
+                detail: `Failed To Create User.`,
                 life: 3000,
               });
             }
-            this.CloseInstances();
-          },
-          (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Failed',
-              detail: `Failed To Create User.`,
-              life: 3000,
-            });
-          },
-        );
+          )
+      );
     }
   }
 
@@ -237,10 +245,14 @@ export class CreateUpdateUser implements OnInit, OnDestroy {
     this.user = {};
   }
 
+  //unsubscribe all the services
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
   //edit user
   editUser(user: UserDto) {
     this.user = { ...user };
-
     this.userForm.patchValue({ ...user });
   }
 }

@@ -1,4 +1,7 @@
-<form [formGroup]="reportForm" class="card grid grid-cols-1 gap-4 mt-4">
+<form
+  [formGroup]="reportForm"
+  class="card grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"
+>
   <div>
     <p-floatlabel class="w-full mt-3">
       <input
@@ -35,32 +38,6 @@
         class="w-full"
       />
       <label for="Author">Author</label>
-    </p-floatlabel>
-  </div>
-
-  <div>
-    <p-floatlabel class="w-full mt-3">
-      <input
-        pInputText
-        id="Category"
-        formControlName="Category"
-        autocomplete="off"
-        class="w-full"
-      />
-      <label for="Category">Category</label>
-    </p-floatlabel>
-  </div>
-
-  <div>
-    <p-floatlabel class="w-full mt-3">
-      <p-datepicker
-        formControlName="CreatedDate"
-        showIcon
-        iconDisplay="input"
-        styleClass="w-full"
-        appendTo="body"
-      />
-      <label for="CreatedDate">Created Date</label>
     </p-floatlabel>
   </div>
 </form>

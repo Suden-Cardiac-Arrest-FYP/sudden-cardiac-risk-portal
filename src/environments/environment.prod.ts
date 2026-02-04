@@ -1,14 +1,22 @@
 export const environment = {
   production: false,
-  serverUrl: 'https://hr.mediccon.tyk.gtw.cgaas.ai',
-  CompanyLogo: '',
-  WORKSPACEID: 'WS707',
+  serverUrl: 'https://imo-user-mgt.onrender.com/User-Mgt/api',
+  SupplierUrl: 'https://imo-mgt-be.onrender.com/Suppliers/api',
+  ReportUrl: 'http://127.0.0.1:8886/Reports/api',
+  OrganizeUrl: 'http://127.0.0.1:8888/Organizations/api',
+  InventoryUrl: 'http://127.0.0.1:8882/Inventory/api',
+
+  LogoLight:
+    'https://my-fyp-s3-bucket.s3.eu-west-2.amazonaws.com/sca-official-logo.png',
+  LogoDark:
+    'https://my-fyp-s3-bucket.s3.eu-west-2.amazonaws.com/sca-official-logo.png',
+  WORKSPACEID: 'WS680',
   auth0: {
-    domain: 'cgaas-generated.eu.auth0.com',
-    clientId: 'TDlHgD3IgJSjM9DyKn9gZF1jLCdc0r7A',
+    domain: 'dev-yi2vtudtt52q3bgx.us.auth0.com',
+    clientId: '56bSrJyNAAcsE7Hfs88lBH3BEXYesuwA',
     authorizationParams: {
-      redirect_uri: 'https://medicconhr-WS707.demo.cgaas.ai',
-      audience: 'https://cgaas-generated.eu.auth0.com/api/v2/'
+      // audience: 'https://h-pos.us.auth0.com/api/v2/',
+      redirect_uri: 'https://imo-mgt-fe.onrender.com',
     },
   },
 };

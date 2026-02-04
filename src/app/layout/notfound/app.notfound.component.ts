@@ -15,8 +15,8 @@ export class AppNotfoundComponent {
 
   getLogoSrc(): string {
     return this.isDarkMode
-      ? 'https://app.cgaas.ai/cgaas/media/logos/CGaaS-Logo.png'
-      : 'https://app.cgaas.ai/cgaas/media/logos/CGaaS-black.png';
+      ? 'https://my-fyp-s3-bucket.s3.eu-west-2.amazonaws.com/sca-official-logo.png'
+      : 'https://my-fyp-s3-bucket.s3.eu-west-2.amazonaws.com/sca-official-logo.png';
   }
 
   get isDarkMode(): boolean {

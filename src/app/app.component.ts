@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PrimeNG } from 'primeng/config';
-import { filter, map, Subject, takeUntil } from 'rxjs';
+import { filter, map, Subscription } from 'rxjs';
 import { RoleConfigService } from '../services/role-config.service';
 import { RoleService } from '../services/Role.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { IRole, RoleDto, RoleResponse } from '../dto/Role.dto';
+import { IRole, RoleDto } from '../dto/Role.dto';
 import { PermissionCategories } from './access-control/roleConfig';
-import { UserDto, UserResponse } from '../dto/User.dto';
+import { IUser, UserDto } from '../dto/User.dto';
 import { UserService } from '../services/User.service';
 import { AuthService, User } from '@auth0/auth0-angular';
 
@@ -23,60 +23,85 @@ export class AppComponent implements OnInit, OnDestroy {
   inputRoles: RoleDto[] | null = [];
 
   userRole: string | undefined = '';
+  ResellerId: string | undefined = '';
+  ResellerName: string | undefined = '';
+
+    MerchantId: string | undefined = '';
+  MerchantName: string | undefined = '';
 
   user: User | undefined = {};
 
-  private destroy$ = new Subject<void>();
-  private primeng = inject(PrimeNG);
-  private roleService = inject(RoleService);
-  private userService = inject(UserService);
-  private authService = inject(AuthService);
+  private subscription: Subscription = new Subscription();
+
+  constructor(
+    private primeng: PrimeNG,
+    private roleConfigSerice: RoleConfigService,
+    private roleService: RoleService,
+    private userService: UserService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.primeng.ripple.set(true);
-    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+    // Vat
+    if (!localStorage.getItem('VAT')) {
+      localStorage.setItem('VAT', '18');
+    }
+    this.authService.user$.subscribe((user) => {
       if (user !== null) {
         this.user = user;
         this.userRole = this.user?.['user_metadata']['role'];
-        // if (
-        //     this.user?.['user_metadata']['workspaceid'] !=
-        //     environment.WORKSPACEID
-        // ) {
-        //     this.router.navigate(['/notfound']);
-        // }
+        
+        if ((this.ResellerId = this.user?.['user_metadata']['resellerid'])) {
+          localStorage.setItem('ResellerId', this.ResellerId || '');
+        }
+
+        if (
+          (this.ResellerName = this.user?.['user_metadata']['resellername'])
+        ) {
+          localStorage.setItem('ResellerName', this.ResellerName || '');
+        }
+
+               if ((this.MerchantId = this.user?.['user_metadata']['merchantid'])) {
+          localStorage.setItem('MerchantId', this.MerchantId || '');
+        }
+
+        if (
+          (this.MerchantName = this.user?.['user_metadata']['merchantname'])
+        ) {
+          localStorage.setItem('MerchantName', this.MerchantName || '');
+        }
+
         localStorage.setItem('roleName', this.userRole || '');
         this.findAllRole({});
       } else {
         this.userRole = undefined;
       }
     });
-    this.findAllRole({});
+    // this.findAllRole({})
   }
 
   //--roles get--
   findAllRole(params: any) {
-    const requestParams = {
-      noPagination: 'true',
-    };
-    this.roleService
-      .findAllRole(requestParams)
-      .pipe(
-        filter((res: HttpResponse<RoleResponse>) => res.ok),
-        map((res: HttpResponse<RoleResponse>) => res.body),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(
-        (res: RoleResponse | null) => {
-          if (res) {
-            this.inputRoles = res?.Role;
+    this.subscription.add(
+      this.roleService
+        .findAllRole(params)
+        .pipe(
+          filter((res: HttpResponse<IRole[]>) => res.ok),
+          map((res: HttpResponse<IRole[]>) => res.body)
+        )
+        .subscribe(
+          (res: IRole[] | null) => {
+            this.inputRoles = res;
             //--validate roles--
             this.handleRolesAuthentication();
+          },
+
+          (res: HttpErrorResponse) => {
+            console.log('error in extracting all Role', res);
           }
-        },
-        (res: HttpErrorResponse) => {
-          console.log('error in extracting all Role', res);
-        },
-      );
+        )
+    );
   }
 
   //--handle authentication rules--
@@ -109,60 +134,72 @@ export class AppComponent implements OnInit, OnDestroy {
         } else {
           //--show error (no role available in that name)--
           console.error(
-            'No role configuration available for user, please try again!',
+            'No role configuration available for user, please try again!'
           );
         }
       }
     } else {
       //--show error (no user role)--
       console.error(
-        'Cannot get role configuration data from auth0, please try again!',
+        'Cannot get role configuration data from auth0, please try again!'
       );
     }
   }
 
   createSuperAdminCredentials(role: RoleDto) {
-    this.roleService
-      .createRole(role)
-      .pipe(
-        filter((res: HttpResponse<IRole>) => res.ok),
-        map((res: HttpResponse<IRole>) => res.body),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(
-        (res: IRole | null) => {
-          if (res) {
-            const fullName = this.user?.name || '';
-            const nameParts = fullName.split(' ');
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(' ');
+    this.roleConfigSerice
+      .SendFirstLoginEmail({
+        email: this.user?.email || '',
+        userName: this.user?.name || '',
+      })
+      .subscribe({
+        next: (res: HttpResponse<any>) => {},
+        error: (err) => {
+          console.error('Error sending email:', err);
+        },
+      });
+    this.subscription.add(
+      this.roleService
+        .createRole(role)
+        .pipe(
+          filter((res: HttpResponse<IRole>) => res.ok),
+          map((res: HttpResponse<IRole>) => res.body)
+        )
+        .subscribe(
+          (res: IRole | null) => {
+            if (res) {
+              const fullName = this.user?.name || '';
+              const nameParts = fullName.split(' ');
+              const firstName = nameParts[0];
+              const lastName = nameParts.slice(1).join(' ');
 
-            this.createSuperAdminUser({
-              FirstName: firstName,
-              LastName: lastName,
-              RoleId: role.RoleId,
-              RoleName: role.Name,
-              Email: this.user?.email || '',
-            });
-          } else {
+              this.createSuperAdminUser({
+                FirstName: firstName,
+                LastName: lastName,
+                RoleId: role.RoleId,
+                RoleName: role.Name,
+                Email: this.user?.email || '',
+              });
+            } else {
+              // Show error (Failed to create role)
+              console.error(
+                'Failed to create super admin role, please try again!'
+              );
+            }
+          },
+          (error) => {
             // Show error (Failed to create role)
             console.error(
-              'Failed to create super admin role, please try again!',
+              'Failed to create super admin role, please try again!'
             );
           }
-        },
-        (error) => {
-          // Show error (Failed to create role)
-          console.error('Failed to create super admin role, please try again!');
-        },
-      );
+        )
+    );
   }
 
   createSuperAdminUser(user: UserDto) {
-    this.userService
-      .createUser(user)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
+    this.subscription.add(
+      this.userService.createUser(user).subscribe(
         () => {
           //--all done and refresh--
         },
@@ -176,53 +213,56 @@ export class AppComponent implements OnInit, OnDestroy {
           } else {
             // Show general error if the error does not match the specific case
             console.error(
-              'Failed to create super admin user, please try again!',
+              'Failed to create super admin user, please try again!'
             );
           }
-        },
-      );
+        }
+      )
+    );
   }
 
   validateSuperAdminRoleWithUser(role: RoleDto) {
-    this.userService
-      .findAllUser({})
-      .pipe(
-        filter((res: HttpResponse<UserResponse>) => res.ok),
-        map((res: HttpResponse<UserResponse>) => res.body),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(
-        (res: UserResponse | null) => {
-          const superAdminUser = res?.User?.find((user) => {
-            return user.RoleId === role.RoleId;
-          });
-
-          if (!superAdminUser?.UserId) {
-            const fullName = this.user?.name || '';
-            const nameParts = fullName.split(' ');
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(' ');
-
-            //--no user for role--
-            this.createSuperAdminUser({
-              FirstName: firstName,
-              LastName: lastName,
-              RoleId: role.RoleId,
-              RoleName: role.Name,
-              Email: this.user?.email || '',
+    this.subscription.add(
+      this.userService
+        .findAllUser({})
+        .pipe(
+          filter((res: HttpResponse<IUser[]>) => res.ok),
+          map((res: HttpResponse<IUser[]>) => res.body)
+        )
+        .subscribe(
+          (res: IUser[] | null) => {
+            const superAdminUser = res?.find((user) => {
+              return user.RoleId === role.RoleId;
             });
+
+            if (!superAdminUser?.UserId) {
+              const fullName = this.user?.name || '';
+              const nameParts = fullName.split(' ');
+              const firstName = nameParts[0];
+              const lastName = nameParts.slice(1).join(' ');
+
+              //--no user for role--
+              this.createSuperAdminUser({
+                FirstName: firstName,
+                LastName: lastName,
+                RoleId: role.RoleId,
+                RoleName: role.Name,
+                Email: this.user?.email || '',
+              });
+            } else {
+            }
+          },
+
+          (res: HttpErrorResponse) => {
+            console.error(
+              'Cannot get role configuration data from user, please try again!'
+            );
           }
-        },
-        (res: HttpErrorResponse) => {
-          console.error(
-            'Cannot get role configuration data from user, please try again!',
-          );
-        },
-      );
+        )
+    );
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.subscription.unsubscribe();
   }
 }

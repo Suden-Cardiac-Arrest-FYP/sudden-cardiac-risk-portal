@@ -1,19 +1,11 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  inject,
-  DestroyRef,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-
+import { Tag } from 'primeng/tag';
 import { PopoverModule } from 'primeng/popover';
 import { Tooltip, TooltipModule } from 'primeng/tooltip';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
@@ -23,19 +15,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import {
-  filter,
-  map,
-  debounceTime,
-  distinctUntilChanged,
-  takeUntil,
-  Subject,
-} from 'rxjs';
+import { filter, map, Subscription } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { getDtoNameById } from '../../app/relationships/reationshipConfig';
 
-import { IUser, UserDto, UserResponse } from '../../dto/User.dto';
+import { IUser, UserDto } from '../../dto/User.dto';
 import { UserService } from '../../services/User.service';
 import { CreateUpdateUser } from './create-update-user/create-update-user';
 import { roleConfig } from '../../app/access-control/roleConfig';
@@ -52,6 +37,7 @@ import { roleConfig } from '../../app/access-control/roleConfig';
     TableModule,
     TooltipModule,
     PopoverModule,
+    Tag,
     OverlayBadgeModule,
     AvatarModule,
     DividerModule,
@@ -67,14 +53,9 @@ import { roleConfig } from '../../app/access-control/roleConfig';
   styleUrl: '././User.component.scss',
   providers: [ConfirmationService, MessageService, DialogService, UserService],
 })
-export class UserComponent implements OnInit, OnDestroy {
-  private destroyed$ = new Subject<void>();
-  searchSubject = new Subject<string>();
+export class UserComponent implements OnInit {
   first = 0;
   rows = 10;
-  page = 1;
-  totalRecords = 0;
-  searchQuery = '';
   selectedRows: any = [];
   @ViewChild('dt') dt!: Table;
   UserData: UserDto[] = [];
@@ -82,36 +63,22 @@ export class UserComponent implements OnInit, OnDestroy {
   canUpdate: boolean = true;
   canDelete: boolean = true;
   roleConfig = roleConfig;
+  private subscription: Subscription = new Subscription();
 
   dtoName: string | undefined = 'User';
 
-  private destroyRef = inject(DestroyRef);
-  private route = inject(ActivatedRoute);
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
-  private router = inject(Router);
-  private dialogService = inject(DialogService);
+  constructor(
+    private route: ActivatedRoute,
+    private userService: UserService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private router: Router,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit() {
-    this.findAllUser();
-    this.searchSubject
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((searchTerm) => {
-        this.searchQuery = searchTerm;
-        this.first = 0;
-        this.page = 1;
-        this.findAllUser();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+    this.findAllUser({});
+    this.isDataLoading = true;
   }
 
   downloadFile() {
@@ -119,10 +86,10 @@ export class UserComponent implements OnInit, OnDestroy {
       (response: HttpResponse<Blob>) => {
         // Extract filename from content-disposition header
         const contentDispositionHeader: string | null = response.headers.get(
-          'content-disposition',
+          'content-disposition'
         );
         const filename: string = this.getFilenameFromContentDisposition(
-          contentDispositionHeader,
+          contentDispositionHeader
         );
 
         if (response.body) {
@@ -153,7 +120,7 @@ export class UserComponent implements OnInit, OnDestroy {
           detail: ` Failed to download excel.`,
           life: 3000,
         });
-      },
+      }
     );
   }
 
@@ -195,50 +162,41 @@ export class UserComponent implements OnInit, OnDestroy {
           detail: `Failed to upload file "${file.name}".`,
           life: 3000,
         });
-      },
+      }
     );
   }
 
-  /**
-   * Fetches all User with given parameters
-   * @param params - Parameters to filter User
-   */
-  findAllUser(): void {
-    this.isDataLoading = true;
-    const params = {
-      page: this.page.toString(),
-      size: this.rows.toString(),
-      searchTerm: this.searchQuery,
-    };
-    this.userService
-      .findAllUser(params)
-      .pipe(
-        filter((res: HttpResponse<UserResponse>) => res.ok),
-        map((res: HttpResponse<UserResponse>) => res.body),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe({
-        next: (res: UserResponse | null) => {
-          if (res != null) {
-            this.UserData = res.User || [];
-            this.totalRecords = res.Count || 0;
-          } else {
-            this.UserData = [];
-            this.totalRecords = 0;
+  //--find all--
+  findAllUser(params: any) {
+    this.subscription.add(
+      this.userService
+        .findAllUser(params)
+        .pipe(
+          filter((res: HttpResponse<IUser[]>) => res.ok),
+          map((res: HttpResponse<IUser[]>) => res.body)
+        )
+        .subscribe(
+          (res: IUser[] | null) => {
+            if (res != null) {
+              this.UserData = res;
+            } else {
+              this.UserData = [];
+            }
+            this.isDataLoading = false;
+          },
+
+          (res: HttpErrorResponse) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Failed',
+              detail: `Failed To Load all User.`,
+              life: 6000,
+            });
+            this.isDataLoading = false;
+            console.log('error in extracting all User', res);
           }
-          this.isDataLoading = false;
-        },
-        error: (res: HttpErrorResponse) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Failed',
-            detail: `Failed To Load all User.`,
-            life: 6000,
-          });
-          this.isDataLoading = false;
-          console.log('error in extracting all User', res);
-        },
-      });
+        )
+    );
   }
 
   //dynamic dialog
@@ -250,12 +208,12 @@ export class UserComponent implements OnInit, OnDestroy {
   showCreateUserDialogDefault() {
     const ref = this.dialogService.open(CreateUpdateUser, {
       header: 'Create User',
-      width: '40%',
+      width: '60%',
       closable: true,
       modal: true,
     });
     ref.onClose.subscribe(() => {
-      this.findAllUser();
+      this.findAllUser({});
     });
   }
 
@@ -263,12 +221,12 @@ export class UserComponent implements OnInit, OnDestroy {
     const ref = this.dialogService.open(CreateUpdateUser, {
       data: User,
       header: 'Update User',
-      width: '40%',
+      width: '60%',
       closable: true,
       modal: true,
     });
     ref.onClose.subscribe(() => {
-      this.findAllUser();
+      this.findAllUser({});
     });
   }
 
@@ -290,10 +248,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
   ConfirmDeleteUser(User: UserDto) {
     this.UserData = this.UserData.filter((val) => val.UserId !== User.UserId);
-    this.userService
-      .deleteUser({ userId: User.UserId })
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe(() => {});
+    this.subscription.add(
+      this.userService.deleteUser({ userId: User.UserId }).subscribe(() => {})
+    );
   }
 
   hasAccess(dtoId: string, accessType: string): boolean {
@@ -317,47 +274,45 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   reloadState() {
-    this.page = 1;
-    this.first = 0;
     this.isDataLoading = true;
-    this.findAllUser();
+    this.findAllUser({});
   }
 
   onGlobalFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.searchQuery = filterValue;
-    this.searchSubject.next(filterValue);
+    this.dt.filterGlobal(filterValue, 'contains');
   }
 
   next() {
-    this.page++;
-    this.first = (this.page - 1) * this.rows;
-
-    this.findAllUser();
+    this.first = this.first + this.rows;
   }
 
   prev() {
-    this.page--;
-    this.first = (this.page - 1) * this.rows;
+    this.first = this.first - this.rows;
+  }
 
-    this.findAllUser();
+  pageChange(event: { first: number; rows: number }) {
+    this.first = event.first;
+    this.rows = event.rows;
   }
 
   isLastPage(): boolean {
-    return this.totalRecords
-      ? this.first + this.rows >= this.totalRecords
+    return this.dt?.totalRecords
+      ? this.first + this.rows >= this.dt?.totalRecords
       : true;
   }
 
   isFirstPage(): boolean {
-    return this.page === 1;
+    return this.dt?.totalRecords ? this.first === 0 : true;
   }
 
   get currentPage(): number {
-    return this.page;
+    return Math.floor(this.first / this.rows) + 1;
   }
 
   get totalPages(): number {
-    return this.totalRecords ? Math.ceil(this.totalRecords / this.rows) : 0;
+    return this.dt?.totalRecords
+      ? Math.ceil(this.dt.totalRecords / this.rows)
+      : 0;
   }
 }

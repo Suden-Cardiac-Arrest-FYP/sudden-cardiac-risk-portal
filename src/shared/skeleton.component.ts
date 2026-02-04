@@ -33,17 +33,10 @@ import { Table } from 'primeng/table';
       <!-- List Skeleton -->
       <ng-container *ngSwitchCase="'list'">
         <div class="space-y-4">
-          <div
-            *ngFor="let _ of generateArray(items)"
-            class="flex items-center space-x-4"
-          >
+          <div *ngFor="let _ of generateArray(items)" class="flex items-center space-x-4">
             <p-skeleton shape="circle" size="4rem"></p-skeleton>
             <div class="flex-1">
-              <p-skeleton
-                width="100%"
-                height="1.5rem"
-                class="mb-2"
-              ></p-skeleton>
+              <p-skeleton width="100%" height="1.5rem" class="mb-2"></p-skeleton>
               <p-skeleton width="75%" height="1rem"></p-skeleton>
             </div>
           </div>
@@ -75,7 +68,7 @@ import { Table } from 'primeng/table';
       </ng-container>
     </div>
   `,
-  imports: [Skeleton, CommonModule, Table],
+  imports: [Skeleton, CommonModule, Table]
 })
 export class SkeletonComponent {
   @Input() type: 'table' | 'list' | 'card' | 'form' = 'table';
