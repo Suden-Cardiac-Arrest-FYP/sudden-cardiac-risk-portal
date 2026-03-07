@@ -7,7 +7,6 @@ import { ChartModule } from 'primeng/chart';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { Router } from '@angular/router';
-import { DashboardService } from '../../../services/Dashboard.service';
 import { DashboardDto } from '../../../dto/Dashboard.dto';
 
 @Component({
@@ -22,7 +21,7 @@ import { DashboardDto } from '../../../dto/Dashboard.dto';
     SelectButtonModule,
     TableModule,
   ],
-  providers: [DashboardService],
+  // providers: [DashboardService],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -53,12 +52,12 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private dashboardService: DashboardService
+    // private dashboardService: DashboardService
   ) {}
 
   ngOnInit() {
     this.getCurrencySettings();
-    this.loadDashboardData();
+    // this.loadDashboardData();
     // this.loadRecentTransactions();
   }
 
@@ -134,22 +133,22 @@ export class DashboardComponent implements OnInit {
   //   });
   // }
 
-  loadDashboardData(): void {
-    const branchId = sessionStorage.getItem('BranchId') || '';
-    this.dashboardService.getDashboardData(branchId).subscribe({
-      next: (response) => {
-        if (response.body) {
-          this.dashboardData = response.body;
-          this.updateDashboardDisplay();
-        } else {
-          this.resetDashboardToZero();
-        }
-      },
-      error: () => {
-        this.resetDashboardToZero();
-      },
-    });
-  }
+  // loadDashboardData(): void {
+  //   const branchId = sessionStorage.getItem('BranchId') || '';
+  //   this.dashboardService.getDashboardData(branchId).subscribe({
+  //     next: (response) => {
+  //       if (response.body) {
+  //         this.dashboardData = response.body;
+  //         this.updateDashboardDisplay();
+  //       } else {
+  //         this.resetDashboardToZero();
+  //       }
+  //     },
+  //     error: () => {
+  //       this.resetDashboardToZero();
+  //     },
+  //   });
+  // }
 
   resetDashboardToZero(): void {
     this.salesData = { annual: 0, daily: 0 };

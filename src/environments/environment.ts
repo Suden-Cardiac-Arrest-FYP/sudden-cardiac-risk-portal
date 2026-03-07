@@ -1,11 +1,7 @@
 export const environment = {
   production: false,
-  serverUrl: ' http://127.0.0.1:8886/User-Mgt/api',
-  SupplierUrl: 'https://imo-mgt-be.onrender.com/Suppliers/api',
-  ReportUrl: 'http://127.0.0.1:8886/Reports/api',
-  OrganizeUrl: 'http://127.0.0.1:8888/Organizations/api',
-  InventoryUrl: 'http://127.0.0.1:8882/Inventory/api',
-  ScaInferenceUrl: 'http://127.0.0.1:8887/sca-inference-service/api',
+  serverUrl: 'https://user-mgt-svc.mihishicloud.dev/User-Mgt/api',
+  ScaInferenceUrl: 'https://sca-inference.svc.mihishicloud.dev/sca-inference-service/api',
 
 
   LogoLight: '',
