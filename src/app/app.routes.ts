@@ -6,11 +6,6 @@ import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { AppNotfoundComponent } from './layout/notfound/app.notfound.component';
 import { UserComponent } from '../pages/User/User.component';
 import { RoleComponent } from '../pages/Role/Role.component';
-
-import { SupplierComponent } from '../pages/Supplier/Supplier.component';
-
-import { ReportComponent } from '../pages/Report/Report.component';
-import { OrganizationComponent } from '../pages/Organization/Organization.component';
 import { RiskAssessmentComponent } from '../pages/risk-assessment/risk-assessment.component';
 import { EcgAssessmentComponent } from '../pages/ecg-assessment/ecg-assessment.component';
 //import { RiskAssessmentComponent } from './risk-assessment/risk-assessment.component';
@@ -53,20 +48,6 @@ export const routes: Routes = [
         component: RoleComponent,
         canActivate: [AuthGuard],
         data: { requiredRoles: 'DTO5214' },
-      },
-
-      {
-        path: 'report',
-        component: ReportComponent,
-        canActivate: [AuthGuard],
-        data: { requiredRoles: 'DTO5210' },
-      },
-
-      {
-        path: 'organization',
-        component: OrganizationComponent,
-        canActivate: [AuthGuard],
-        data: { requiredRoles: 'DTO5232' },
       },
     ],
   },

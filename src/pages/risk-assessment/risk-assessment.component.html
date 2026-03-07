@@ -81,7 +81,7 @@
         <input
           type="number"
           class="form-input"
-          placeholder="e.g., 55"
+          placeholder="e.g., 30"
           [(ngModel)]="formData.age"
           min="1"
           max="120"
@@ -350,18 +350,18 @@
       <div class="form-field color-field purple">
         <label>Major Vessels (ca)</label>
         <select
-         class="form-input"
-        [(ngModel)]="formData.majorVessels"
-         name="majorVessels"
+          class="form-input"
+          [(ngModel)]="formData.majorVessels"
+          name="majorVessels"
         >
-        <option [ngValue]="null">Select number</option>
+          <option [ngValue]="null">Select number</option>
 
-        <option
-          *ngFor="let option of majorVesselsOptions"
-          [ngValue]="option.value"
-        >
-        {{ option.label }}
-  </option>
+          <option
+            *ngFor="let option of majorVesselsOptions"
+            [ngValue]="option.value"
+          >
+            {{ option.label }}
+          </option>
         </select>
         <p class="helper-text">Colored by fluoroscopy</p>
       </div>
@@ -410,7 +410,6 @@
     <!-- ENHANCED PREDICTION RESULT WITH XAI -->
     <!-- ========================================== -->
     <div *ngIf="predictionResult && !loading" class="result-container">
-      
       <!-- Main Result Card -->
       <div class="main-result-card" [ngClass]="getRiskLevelClass()">
         <div class="result-header">
@@ -431,13 +430,18 @@
               <span class="prob-label">SCA RISK PROBABILITY</span>
             </div>
             <div class="prob-value-large">
-              {{ ((predictionResult.probability?.disease ?? 0) * 100) | number:'1.2-2' }}%
+              {{
+                (predictionResult.probability?.disease ?? 0) * 100
+                  | number: "1.2-2"
+              }}%
             </div>
             <div class="prob-bar-wrapper">
               <div class="prob-bar-track">
-                <div 
-                  class="prob-bar-fill risk-fill" 
-                  [style.width.%]="(predictionResult.probability?.disease ?? 0) * 100"
+                <div
+                  class="prob-bar-fill risk-fill"
+                  [style.width.%]="
+                    (predictionResult.probability?.disease ?? 0) * 100
+                  "
                 ></div>
               </div>
             </div>
@@ -449,13 +453,18 @@
               <span class="prob-label">NO DISEASE PROBABILITY</span>
             </div>
             <div class="prob-value-large">
-              {{ ((predictionResult.probability?.no_disease ?? 0) * 100) | number:'1.2-2' }}%
+              {{
+                (predictionResult.probability?.no_disease ?? 0) * 100
+                  | number: "1.2-2"
+              }}%
             </div>
             <div class="prob-bar-wrapper">
               <div class="prob-bar-track">
-                <div 
-                  class="prob-bar-fill safe-fill" 
-                  [style.width.%]="(predictionResult.probability?.no_disease ?? 0) * 100"
+                <div
+                  class="prob-bar-fill safe-fill"
+                  [style.width.%]="
+                    (predictionResult.probability?.no_disease ?? 0) * 100
+                  "
                 ></div>
               </div>
             </div>
@@ -483,8 +492,8 @@
           </div>
 
           <div class="factors-list">
-            <div 
-              *ngFor="let feature of getTopFeatures(); let i = index" 
+            <div
+              *ngFor="let feature of getTopFeatures(); let i = index"
               class="factor-card"
               [ngClass]="getFactorCardClass(feature)"
             >
@@ -492,22 +501,39 @@
               <div class="factor-content">
                 <div class="factor-header-row">
                   <div class="factor-name-section">
-                    <span class="factor-icon">{{ getFeatureIcon(feature.key) }}</span>
-                    <span class="factor-name">{{ getFeatureDisplayName(feature.key) }}</span>
+                    <span class="factor-icon">{{
+                      getFeatureIcon(feature.key)
+                    }}</span>
+                    <span class="factor-name">{{
+                      getFeatureDisplayName(feature.key)
+                    }}</span>
                   </div>
-                  <span class="factor-value-badge">{{ formatFeatureValue(feature.key, feature.value) }}</span>
+                  <span class="factor-value-badge">{{
+                    formatFeatureValue(feature.key, feature.value)
+                  }}</span>
                 </div>
                 <div class="factor-details-row">
-                  <span class="impact-badge" [ngClass]="getImpactClass(feature.impact)">
-                    {{ feature.impact === 'Increases' ? '↑ Increases Risk' : '↓ Decreases Risk' }}
+                  <span
+                    class="impact-badge"
+                    [ngClass]="getImpactClass(feature.impact)"
+                  >
+                    {{
+                      feature.impact === "Increases"
+                        ? "↑ Increases Risk"
+                        : "↓ Decreases Risk"
+                    }}
                   </span>
-                  <span class="shap-value">SHAP: {{ feature.shap_value | number:'1.3-3' }}</span>
+                  <span class="shap-value"
+                    >SHAP: {{ feature.shap_value | number: "1.3-3" }}</span
+                  >
                 </div>
                 <div class="factor-bar-container">
-                  <div 
-                    class="factor-bar" 
+                  <div
+                    class="factor-bar"
                     [style.width.%]="getFeatureBarWidth(feature.shap_value)"
-                    [ngClass]="feature.impact === 'Increases' ? 'risk-bar' : 'safe-bar'"
+                    [ngClass]="
+                      feature.impact === 'Increases' ? 'risk-bar' : 'safe-bar'
+                    "
                   ></div>
                 </div>
               </div>
@@ -517,47 +543,65 @@
 
         <!-- All Features Section -->
         <div class="all-features-section">
-          <button 
-            class="toggle-features-btn" 
+          <button
+            class="toggle-features-btn"
             (click)="toggleAllFeatures()"
             type="button"
           >
-            <span class="toggle-icon">{{ showAllFeatures ? '▼' : '▶' }}</span>
+            <span class="toggle-icon">{{ showAllFeatures ? "▼" : "▶" }}</span>
             <span class="toggle-text">
-              {{ showAllFeatures ? 'Hide' : 'Show' }} All Features ({{ getAllFeaturesCount() }})
+              {{ showAllFeatures ? "Hide" : "Show" }} All Features ({{
+                getAllFeaturesCount()
+              }})
             </span>
           </button>
 
           <div class="all-features-list" *ngIf="showAllFeatures">
-            <div 
-              *ngFor="let feature of getAllFeaturesSorted()" 
+            <div
+              *ngFor="let feature of getAllFeaturesSorted()"
               class="feature-item"
-              [ngClass]="feature.impact === 'Increases' ? 'increases-risk' : 'decreases-risk'"
+              [ngClass]="
+                feature.impact === 'Increases'
+                  ? 'increases-risk'
+                  : 'decreases-risk'
+              "
             >
               <div class="feature-name-col">
-                <span class="feature-icon-small">{{ getFeatureIcon(feature.key) }}</span>
-                <span class="feature-name-text">{{ getFeatureDisplayName(feature.key) }}</span>
+                <span class="feature-icon-small">{{
+                  getFeatureIcon(feature.key)
+                }}</span>
+                <span class="feature-name-text">{{
+                  getFeatureDisplayName(feature.key)
+                }}</span>
               </div>
               <div class="feature-value-col">
                 {{ formatFeatureValue(feature.key, feature.value) }}
               </div>
               <div class="feature-impact-col">
-                <span 
-                  class="impact-pill" 
-                  [ngClass]="feature.impact === 'Increases' ? 'impact-increase' : 'impact-decrease'"
+                <span
+                  class="impact-pill"
+                  [ngClass]="
+                    feature.impact === 'Increases'
+                      ? 'impact-increase'
+                      : 'impact-decrease'
+                  "
                 >
                   {{ feature.impact }}
                 </span>
               </div>
               <div class="feature-shap-col">
                 <div class="shap-bar-mini">
-                  <div 
-                    class="shap-fill" 
+                  <div
+                    class="shap-fill"
                     [style.width.%]="getShapBarWidth(feature.shap_value)"
-                    [ngClass]="feature.shap_value > 0 ? 'shap-positive' : 'shap-negative'"
+                    [ngClass]="
+                      feature.shap_value > 0 ? 'shap-positive' : 'shap-negative'
+                    "
                   ></div>
                 </div>
-                <span class="shap-number">{{ feature.shap_value | number:'1.3-3' }}</span>
+                <span class="shap-number">{{
+                  feature.shap_value | number: "1.3-3"
+                }}</span>
               </div>
             </div>
           </div>
@@ -577,11 +621,19 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons-row">
-        <button class="action-btn btn-primary" (click)="downloadReport()" type="button">
+        <button
+          class="action-btn btn-primary"
+          (click)="downloadReport()"
+          type="button"
+        >
           <span class="btn-icon">📄</span>
           <span class="btn-text">Download Report</span>
         </button>
-        <button class="action-btn btn-secondary" (click)="resetForm()" type="button">
+        <button
+          class="action-btn btn-secondary"
+          (click)="resetForm()"
+          type="button"
+        >
           <span class="btn-icon">🔄</span>
           <span class="btn-text">New Assessment</span>
         </button>
