@@ -216,7 +216,7 @@ export class DashboardComponent implements OnInit {
           callbacks: {
             label: (context: any) => {
               return `${this.currencySymbol} ${this.formatCurrency(
-                context.raw
+                context.raw,
               )}`;
             },
           },
@@ -372,5 +372,17 @@ export class DashboardComponent implements OnInit {
 
   changeSelect() {
     this.initChartData();
+  }
+
+  // ==================== Navigation ====================
+
+  navigateToClinicalAssessment(): void {
+    console.log('Navigating to Risk Assessment...');
+    this.router.navigate(['/risk-assessment']);
+  }
+
+  navigateToECGAssessment(): void {
+    console.log('Navigating to Risk Assessment...');
+    this.router.navigate(['/ecg-assessment']);
   }
 }

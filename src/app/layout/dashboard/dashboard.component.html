@@ -483,6 +483,52 @@
       .cta-section {
         animation-delay: 0.4s;
       }
+
+      /*under button*/
+
+      .btn {
+        padding: 20px 15px;
+        border: 1.5px solid #9db9e2;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #464749;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+      }
+
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+      .btn-primary {
+        background: #1e40af;
+        color: #ad8c8c;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background: #1d3a9e;
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: #1e40af;
+        border: 1.5px solid #1e40af;
+      }
+
+      .btn-outline:hover {
+        background: #eff6ff;
+      }
+
+      .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: fit-content;
+      }
     </style>
   </head>
   <body>
@@ -667,10 +713,21 @@
             health and receive personalized recommendations.
           </p>
         </div>
-        <a href="#assessment" class="cta-button">
-          Start Assessment
-          <span>→</span>
-        </a>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="navigateToClinicalAssessment()"
+        >
+          <b>Start Clinical Risk Assessment</b>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="navigateToECGAssessment()"
+        >
+          <b>Start ECG Risk Assessment</b>
+        </button>
       </div>
     </div>
   </body>
