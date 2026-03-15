@@ -9,7 +9,6 @@
   <!-- Progress Navigation -->
   <div class="progress-nav">
     <div class="nav-steps">
-      <!-- Progress Bar Background -->
       <div class="progress-bar-container">
         <div
           class="progress-bar-fill"
@@ -17,7 +16,6 @@
         ></div>
       </div>
 
-      <!-- Step 1: Demographics -->
       <div class="nav-step" (click)="goToStep(1)">
         <div
           class="step-icon-wrapper"
@@ -29,7 +27,6 @@
         <span class="step-label">Demographics</span>
       </div>
 
-      <!-- Step 2: Vitals -->
       <div class="nav-step" (click)="goToStep(2)">
         <div
           class="step-icon-wrapper"
@@ -41,7 +38,6 @@
         <span class="step-label">Vitals</span>
       </div>
 
-      <!-- Step 3: Cardiac Tests -->
       <div class="nav-step" (click)="goToStep(3)">
         <div
           class="step-icon-wrapper"
@@ -55,59 +51,65 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- STEP 1: DEMOGRAPHICS -->
-  <!-- ========================================== -->
+  <!-- ══════════════════════════════════════════
+       STEP 1: DEMOGRAPHICS
+  ══════════════════════════════════════════ -->
   <div class="form-container" *ngIf="isStepVisible(1)">
-    <!-- Section Header -->
     <div class="form-section-header">
-      <div class="section-icon-box teal">
-        <span>👤</span>
-      </div>
+      <div class="section-icon-box teal"><span>👤</span></div>
       <div class="section-header-text">
         <h2>Demographics</h2>
         <p>Basic patient information</p>
       </div>
     </div>
 
-    <!-- Form Fields Grid -->
     <div class="form-grid">
-      <!-- Age Field -->
+      <!-- Age -->
       <div class="form-field">
         <label>
           <span class="field-number">1</span>
-          Age (years)
+          Age (years) <span class="required-star">*</span>
         </label>
         <input
           type="number"
           class="form-input"
+          [class.input-error]="errors.age"
           placeholder="e.g., 30"
           [(ngModel)]="formData.age"
-          min="1"
-          max="120"
+          (ngModelChange)="errors.age = ''"
+          min="18"
+          max="40"
           name="age"
         />
+        <span class="field-error" *ngIf="errors.age">⚠️ {{ errors.age }}</span>
       </div>
 
-      <!-- Sex Field -->
+      <!-- Sex -->
       <div class="form-field">
         <label>
           <span class="field-number">2</span>
-          Sex
+          Sex <span class="required-star">*</span>
         </label>
-        <select class="form-input" [(ngModel)]="formData.sex" name="sex">
-          <option *ngFor="let option of sexOptions" [value]="option.value">
-            {{ option.label }}
+        <select
+          class="form-input"
+          [class.input-error]="errors.sex"
+          [(ngModel)]="formData.sex"
+          (ngModelChange)="errors.sex = ''"
+          name="sex"
+        >
+          <option *ngFor="let o of sexOptions" [value]="o.value">
+            {{ o.label }}
           </option>
         </select>
+        <span class="field-error" *ngIf="errors.sex">⚠️ {{ errors.sex }}</span>
       </div>
     </div>
 
-    <!-- Chest Pain Type Selection -->
+    <!-- Chest Pain Type -->
     <div class="form-field">
       <label>
         <span class="field-number">3</span>
-        Chest Pain Type (cp)
+        Chest Pain Type (cp) <span class="required-star">*</span>
       </label>
       <div class="chip-group">
         <button
@@ -120,9 +122,11 @@
           {{ type.label }}
         </button>
       </div>
+      <span class="field-error" *ngIf="errors.chestPainType"
+        >⚠️ {{ errors.chestPainType }}</span
+      >
     </div>
 
-    <!-- Navigation Buttons -->
     <div class="form-navigation">
       <button class="nav-button prev" disabled type="button">← Previous</button>
       <button class="nav-button next" (click)="nextStep()" type="button">
@@ -131,61 +135,67 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- STEP 2: VITALS & BLOOD TESTS -->
-  <!-- ========================================== -->
+  <!-- ══════════════════════════════════════════
+       STEP 2: VITALS & BLOOD TESTS
+  ══════════════════════════════════════════ -->
   <div class="form-container" *ngIf="isStepVisible(2)">
-    <!-- Section Header -->
     <div class="form-section-header">
-      <div class="section-icon-box red">
-        <span>📊</span>
-      </div>
+      <div class="section-icon-box red"><span>📊</span></div>
       <div class="section-header-text">
         <h2>Vitals & Blood Tests</h2>
         <p>Blood pressure and lab values</p>
       </div>
     </div>
 
-    <!-- Blood Pressure and Cholesterol -->
     <div class="form-grid">
-      <!-- Blood Pressure Field -->
+      <!-- Blood Pressure -->
       <div class="form-field color-field pink">
         <label>
           <span class="field-icon">❤️</span>
-          Resting Blood Pressure (trestbps)
+          Resting Blood Pressure (trestbps) <span class="required-star">*</span>
         </label>
         <div class="input-with-unit">
           <input
             type="number"
             class="form-input"
+            [class.input-error]="errors.bloodPressure"
             placeholder="e.g., 130"
             [(ngModel)]="formData.bloodPressure"
+            (ngModelChange)="errors.bloodPressure = ''"
             min="50"
             max="250"
             name="bloodPressure"
           />
           <span class="input-unit">mm Hg</span>
         </div>
+        <span class="field-error" *ngIf="errors.bloodPressure"
+          >⚠️ {{ errors.bloodPressure }}</span
+        >
       </div>
 
-      <!-- Cholesterol Field -->
+      <!-- Cholesterol -->
       <div class="form-field color-field yellow">
         <label>
           <span class="field-icon">💧</span>
-          Serum Cholesterol (chol)
+          Serum Cholesterol (chol) <span class="required-star">*</span>
         </label>
         <div class="input-with-unit">
           <input
             type="number"
             class="form-input"
+            [class.input-error]="errors.cholesterol"
             placeholder="e.g., 220"
             [(ngModel)]="formData.cholesterol"
+            (ngModelChange)="errors.cholesterol = ''"
             min="100"
             max="600"
             name="cholesterol"
           />
           <span class="input-unit">mg/dl</span>
         </div>
+        <span class="field-error" *ngIf="errors.cholesterol"
+          >⚠️ {{ errors.cholesterol }}</span
+        >
       </div>
     </div>
 
@@ -194,6 +204,7 @@
       <label>
         <span class="field-icon">⚡</span>
         Fasting Blood Sugar > 120 mg/dl (fbs)
+        <span class="required-star">*</span>
       </label>
       <div class="radio-group">
         <div class="radio-option">
@@ -203,6 +214,7 @@
             id="fbsTrue"
             [value]="true"
             [(ngModel)]="formData.fbs"
+            (ngModelChange)="errors.fbs = ''"
           />
           <label for="fbsTrue">Yes (True)</label>
         </div>
@@ -213,16 +225,18 @@
             id="fbsFalse"
             [value]="false"
             [(ngModel)]="formData.fbs"
+            (ngModelChange)="errors.fbs = ''"
           />
           <label for="fbsFalse">No (False)</label>
         </div>
       </div>
+      <span class="field-error" *ngIf="errors.fbs">⚠️ {{ errors.fbs }}</span>
     </div>
 
     <!-- Resting ECG Results -->
     <div class="form-field">
       <label style="margin-bottom: 16px; font-weight: 700; font-size: 1.05rem">
-        Resting ECG Results (restecg)
+        Resting ECG Results (restecg) <span class="required-star">*</span>
       </label>
       <div class="chip-group">
         <button
@@ -235,9 +249,11 @@
           {{ type.label }}
         </button>
       </div>
+      <span class="field-error" *ngIf="errors.restecg"
+        >⚠️ {{ errors.restecg }}</span
+      >
     </div>
 
-    <!-- Navigation Buttons -->
     <div class="form-navigation">
       <button class="nav-button prev" (click)="previousStep()" type="button">
         ← Previous
@@ -248,46 +264,49 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- STEP 3: CARDIAC TESTS -->
-  <!-- ========================================== -->
+  <!-- ══════════════════════════════════════════
+       STEP 3: CARDIAC TESTS
+  ══════════════════════════════════════════ -->
   <div class="form-container" *ngIf="isStepVisible(3)">
-    <!-- Section Header -->
     <div class="form-section-header">
-      <div class="section-icon-box blue">
-        <span>❤️</span>
-      </div>
+      <div class="section-icon-box blue"><span>❤️</span></div>
       <div class="section-header-text">
         <h2>Cardiac Tests</h2>
         <p>Exercise test and imaging results</p>
       </div>
     </div>
 
-    <!-- Max Heart Rate and Exercise Induced Angina -->
     <div class="form-grid">
-      <!-- Max Heart Rate Field -->
+      <!-- Max Heart Rate -->
       <div class="form-field color-field pink">
         <label>
           <span class="field-icon">❤️</span>
-          Max Heart Rate (thalach)
+          Max Heart Rate (thalach) <span class="required-star">*</span>
         </label>
         <div class="input-with-unit">
           <input
             type="number"
             class="form-input"
+            [class.input-error]="errors.maxHeartRate"
             placeholder="e.g., 150"
             [(ngModel)]="formData.maxHeartRate"
+            (ngModelChange)="errors.maxHeartRate = ''"
             min="60"
             max="220"
             name="maxHeartRate"
           />
           <span class="input-unit">bpm</span>
         </div>
+        <span class="field-error" *ngIf="errors.maxHeartRate"
+          >⚠️ {{ errors.maxHeartRate }}</span
+        >
       </div>
 
       <!-- Exercise Induced Angina -->
       <div class="form-field color-field yellow">
-        <label>Exercise Induced Angina (exang)</label>
+        <label>
+          Exercise Induced Angina (exang) <span class="required-star">*</span>
+        </label>
         <div class="radio-group">
           <div class="radio-option">
             <input
@@ -296,6 +315,7 @@
               id="exangYes"
               [value]="true"
               [(ngModel)]="formData.exang"
+              (ngModelChange)="errors.exang = ''"
             />
             <label for="exangYes">Yes</label>
           </div>
@@ -306,85 +326,103 @@
               id="exangNo"
               [value]="false"
               [(ngModel)]="formData.exang"
+              (ngModelChange)="errors.exang = ''"
             />
             <label for="exangNo">No</label>
           </div>
         </div>
+        <span class="field-error" *ngIf="errors.exang"
+          >⚠️ {{ errors.exang }}</span
+        >
       </div>
     </div>
 
-    <!-- ST Depression and ST Slope -->
     <div class="form-grid">
-      <!-- ST Depression Field -->
+      <!-- ST Depression -->
       <div class="form-field color-field blue">
         <label>
           <span class="field-icon">📉</span>
-          ST Depression (oldpeak)
+          ST Depression (oldpeak) <span class="required-star">*</span>
         </label>
         <input
           type="number"
           step="0.1"
           class="form-input"
+          [class.input-error]="errors.stDepression"
           placeholder="e.g., 1.5"
           [(ngModel)]="formData.stDepression"
+          (ngModelChange)="errors.stDepression = ''"
           min="0"
           max="10"
           name="stDepression"
         />
+        <span class="field-error" *ngIf="errors.stDepression"
+          >⚠️ {{ errors.stDepression }}</span
+        >
       </div>
 
-      <!-- ST Slope Field -->
+      <!-- ST Slope -->
       <div class="form-field color-field cyan">
-        <label>ST Slope (slope)</label>
-        <select class="form-input" [(ngModel)]="formData.slope" name="slope">
-          <option *ngFor="let option of slopeOptions" [value]="option.value">
-            {{ option.label }}
+        <label> ST Slope (slope) <span class="required-star">*</span> </label>
+        <select
+          class="form-input"
+          [class.input-error]="errors.slope"
+          [(ngModel)]="formData.slope"
+          (ngModelChange)="errors.slope = ''"
+          name="slope"
+        >
+          <option *ngFor="let o of slopeOptions" [value]="o.value">
+            {{ o.label }}
           </option>
         </select>
+        <span class="field-error" *ngIf="errors.slope"
+          >⚠️ {{ errors.slope }}</span
+        >
       </div>
     </div>
 
-    <!-- Major Vessels and Thalassemia -->
     <div class="form-grid">
-      <!-- Major Vessels Field -->
+      <!-- Major Vessels -->
       <div class="form-field color-field purple">
-        <label>Major Vessels (ca)</label>
+        <label> Major Vessels (ca) <span class="required-star">*</span> </label>
         <select
           class="form-input"
+          [class.input-error]="errors.majorVessels"
           [(ngModel)]="formData.majorVessels"
+          (ngModelChange)="errors.majorVessels = ''"
           name="majorVessels"
         >
           <option [ngValue]="null">Select number</option>
-
-          <option
-            *ngFor="let option of majorVesselsOptions"
-            [ngValue]="option.value"
-          >
-            {{ option.label }}
+          <option *ngFor="let o of majorVesselsOptions" [ngValue]="o.value">
+            {{ o.label }}
           </option>
         </select>
         <p class="helper-text">Colored by fluoroscopy</p>
+        <span class="field-error" *ngIf="errors.majorVessels"
+          >⚠️ {{ errors.majorVessels }}</span
+        >
       </div>
 
-      <!-- Thalassemia Field -->
+      <!-- Thalassemia -->
       <div class="form-field color-field light-pink">
-        <label>Thalassemia (thal)</label>
+        <label> Thalassemia (thal) <span class="required-star">*</span> </label>
         <select
           class="form-input"
+          [class.input-error]="errors.thalassemia"
           [(ngModel)]="formData.thalassemia"
+          (ngModelChange)="errors.thalassemia = ''"
           name="thalassemia"
         >
-          <option
-            *ngFor="let option of thalassemiaOptions"
-            [value]="option.value"
-          >
-            {{ option.label }}
+          <option *ngFor="let o of thalassemiaOptions" [value]="o.value">
+            {{ o.label }}
           </option>
         </select>
+        <span class="field-error" *ngIf="errors.thalassemia"
+          >⚠️ {{ errors.thalassemia }}</span
+        >
       </div>
     </div>
 
-    <!-- Navigation Buttons -->
     <div class="form-navigation">
       <button class="nav-button prev" (click)="previousStep()" type="button">
         ← Previous
@@ -400,15 +438,15 @@
       </button>
     </div>
 
-    <!-- Loading Indicator -->
+    <!-- Loading -->
     <div *ngIf="loading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <p>Analyzing clinical data...</p>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ENHANCED PREDICTION RESULT WITH XAI -->
-    <!-- ========================================== -->
+    <!-- ══════════════════════════════════════════
+         PREDICTION RESULT WITH XAI
+    ══════════════════════════════════════════ -->
     <div *ngIf="predictionResult && !loading" class="result-container">
       <!-- Main Result Card -->
       <div class="main-result-card" [ngClass]="getRiskLevelClass()">
@@ -422,7 +460,6 @@
           </div>
         </div>
 
-        <!-- Probability Cards -->
         <div class="probability-grid">
           <div class="probability-card risk-card">
             <div class="prob-header">
@@ -472,25 +509,21 @@
         </div>
       </div>
 
-      <!-- XAI Explanation Section -->
+      <!-- XAI Explanation -->
       <div class="xai-explanation-container">
         <div class="xai-header">
-          <div class="xai-icon-box">
-            <span class="xai-icon">🧠</span>
-          </div>
+          <div class="xai-icon-box"><span class="xai-icon">🧠</span></div>
           <div class="xai-header-text">
             <h3>AI Model Explanation</h3>
             <p>Understanding the factors that influenced this prediction</p>
           </div>
         </div>
 
-        <!-- Top 5 Contributing Factors -->
         <div class="top-factors-section">
           <div class="section-title">
             <span class="title-icon">🎯</span>
             <h4>Top 5 Contributing Factors</h4>
           </div>
-
           <div class="factors-list">
             <div
               *ngFor="let feature of getTopFeatures(); let i = index"
@@ -541,7 +574,6 @@
           </div>
         </div>
 
-        <!-- All Features Section -->
         <div class="all-features-section">
           <button
             class="toggle-features-btn"
@@ -549,13 +581,12 @@
             type="button"
           >
             <span class="toggle-icon">{{ showAllFeatures ? "▼" : "▶" }}</span>
-            <span class="toggle-text">
-              {{ showAllFeatures ? "Hide" : "Show" }} All Features ({{
+            <span class="toggle-text"
+              >{{ showAllFeatures ? "Hide" : "Show" }} All Features ({{
                 getAllFeaturesCount()
-              }})
-            </span>
+              }})</span
+            >
           </button>
-
           <div class="all-features-list" *ngIf="showAllFeatures">
             <div
               *ngFor="let feature of getAllFeaturesSorted()"
@@ -607,7 +638,6 @@
           </div>
         </div>
 
-        <!-- Clinical Interpretation -->
         <div class="clinical-interpretation-box">
           <div class="interpretation-header">
             <span class="interpretation-icon">💡</span>
@@ -640,7 +670,7 @@
       </div>
     </div>
 
-    <!-- ECG Assessment Navigation Button -->
+    <!-- ECG Navigation -->
     <div class="ecg-navigation-wrapper">
       <button
         class="ecg-nav-button"
@@ -652,7 +682,7 @@
     </div>
   </div>
 
-  <!-- Progress Indicator -->
+  <!-- Progress Info -->
   <div class="form-progress-info" *ngIf="currentStep <= 3 && !predictionResult">
     <p>
       Step {{ currentStep }} of {{ totalSteps }} • Form

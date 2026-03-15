@@ -1252,3 +1252,26 @@ select.form-input {
     font-size: 32px;
   }
 }
+
+/* ── Add these rules to risk-assessment.component.scss ─────────────────── */
+
+/* Required field star */
+.required-star {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+/* Red border on invalid inputs */
+.input-error {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+}
+
+/* Inline error message below each field */
+.field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: #be123c;
+  line-height: 1.4;
+}
